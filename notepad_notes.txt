@@ -1138,6 +1138,11 @@ spec:
         - name: shared-data
           mountPath: /shared
 
+Check:- do ps -aux it will display the process, kill the container using "kill -9 <pid>" and ceck if the data still persists because the volume is ties to the lifecycle of the pod and not container
+
+NOTE:- When a container is restarted the data created by container still persists because the root filesystem still remains the same
+Emptydir is basically used To share data between multiple containers in the same Pod
+
 NOTE:- To exec into a container, use below:-
 kubectl exec -it <pod-name> -c <container-name> -- /bin/bash
 
@@ -1196,6 +1201,16 @@ Local disk (for testing)
 Cloud storage (e.g., AWS EBS, GCP Persistent Disk, Azure Disk)
 Network storage (e.g., NFS, Ceph, GlusterFS)
 
+PV is provisioned by a storage admin. eg:- 100GB with readwritemode
+The devops user will create a PVC of 10GB with a readwritemode.
+when k8s scheduler will schedule the pod it will match the PVC with existing PV and check if the requested PVC is avaiable with exact readwritemode, then the PVC will be attaced to the pod and there will be a binding between the PVC and PV.
+The 100GB PV will become 90GB PV once it is allocated to the pods.
+If the PVC is greater than the PV, the PVC and pods will be in pending state until the storage admin expands/creates the PV.
+
+Reclaim Policy:-
+1. Retain: once the pvc is deleted, the pv will exists and in release status but no other pvc can claim
+2. Delete:- delete the pv once the PVC is deleted.
+3. Recycle:- other PVCs can use this PV if release by the current PVC
 example:- Creation of PV in local
 apiVersion: v1
 kind: PersistentVolume
@@ -1208,6 +1223,41 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: /mnt/data
+
+corresponding pvc:-
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+
+corresponding Pods.:-
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: task-pv-pod
+spec:
+  volumes:
+    - name: task-pv-storage
+      persistentVolumeClaim:
+        claimName: task-pv-claim
+  containers:
+    - name: task-pv-container
+      image: nginx
+      ports:
+        - containerPort: 80
+          name: "http-server"
+      volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: task-pv-storage
+    nodeName: master:- where this pv exists, it is mandatory when u create the PV on the nodes/local in multi-node cluster, so the pods must be deployed on that nodes only.
 
 Drawbacks of HostPath:-
 The data is stored on the disk of one node (e.g., /mnt/data on Node A).
