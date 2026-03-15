@@ -1,0 +1,1313 @@
+Labs:- https://www.youtube.com/watch?v=hQ079LcUxcQ&t=243s
+
+K8s is a container orchestration tool which means it automates the process of deploying the containers, scaling, networking, load balancing, health monitoring and self healing the containers.
+
+Service:-(Video:- https://www.youtube.com/watch?v=xY6Ic7Igzck)
+
+Kubectl explain service:- this will fetch the details such as apiversion and kind.
+Advantages of service are:-
+1. load balalcing
+2. discovery
+3. it can expose to external world
+
+Pods logs:-
+just like you can see the logs of the container using docker container logs <container_name>.
+we can check the logs of containers in k8s using kubectl logs <pod_name> <container_name>
+
+everytime a deployment is created, a service will be created for that.
+
+Endpoints:- list of pod IPaddress to which the traffic will be routed
+
+Load balancing:-
+why do we need service:-
+ppl go to deployment because it is easy launch new pods whenever there is a new upgrade without any downtime.
+when new pods are launched their IP address are different from old pods and to access new pods you should go and fetch their IP address which is real pain, so to solve this problem we have service.
+one more reason is pods are not static they are created and destroyed on demand and their IP address change, then you have to share the IPaddress whoever is using those pods.
+
+Instead we can create a service for the deployment and share the service to the users, here service acts as a load balancer
+how it acts as load balancer, it uses a component in k8s which is kube-proxy.
+
+service Discovery:-
+whenver user access service is just acting as a load balancer by just redirecting the user requests to the pods
+
+how will service know if the IP address of pod changes?
+service doesnot keep track of IPaddress of pods, it keeps track of labels and selectors
+
+External world:-
+
+how to access application without service?
+u have to ssh into the kubernetes cluster and then onto the node on which application is running and access it.
+but in real world we cannot say the user to do this, so service will expose the application outside k8s cluster but within ur organization who has access to ur k8s nodes.
+
+One of the main reason for service is it can help us access our application from outside world.
+It provides 3 options:-
+
+1. ClusterIP:-
+If you create clusterIP service for ur pods, ur pods will still be accessible within the k8s cluster.
+Pods in the same cluster can communication with eachother, but still outside world cannot access these service pods.
+It provide discovery and load balancing
+eg:- Someone who has access to EKS cluster and all the pods/services can access this service.
+curl http://<service-name>.<namespace>.svc.cluster.local:<port>
+
+2. NodePort:-
+anyone who is inside the ur organisation can access the pods, but they may not be inside the k8s cluster.
+But they have access to the nodes which are part of k8s cluster.
+30000–32767
+curl -L http://<IP>:<port> -v
+eg:- u r inside the organization, like u have access to AWS like the node(ec2 instance) where the pods is running, but not the EKS cluster.
+NOTE:- even if the pods are running on node1 and not on node2 of you r k8s cluster, someone from ur organization can still access the application from node2 IPaddress and the nodeport.
+
+3. Load Balancer:-
+the service is exposed to external world, unlike clusterIP and NodePort it will have a external IP assigned to it.
+Thi servicer will create a Nodeport and clusterIP by default.
+A public IPaddress will be created by controller from AWS and is assigned to the pods.
+whoever has access to public IPadress of load balancer can access the pods.
+Load balancer will work only for cloud platforms and not for local K8s clusters such as Minikube.
+
+Ingress Controller:-
+
+ingress means incoming traffic
+
+In k8s, the load balancing mechanism that is provided by service is Round Robin.
+
+one reason for ingress:- Enterprise and TLS load balancing
+In virtual machines, the commercial or enterprise load balancer(not AWS load balancer) can provide 100(stickey sessions, path based load balancing,ratio based) features.
+So they were unhappy with the services of k8s. In k8s, the load balancing mechanism that is provided by service is Round Robin.
+
+second reason:-
+there will be 100/1000s of services, and AWS charges for IP address that is created for loadblancer service type because the IPaddress is static Public address.
+
+The solution for the problems of services is Ingress.
+
+Ingress object will be created in the k8s cluster
+If we want ngnx load balancer. Ingress controller will be created by load balancing companies (eg:- nginx, F5, ambassador)
+they place it on github and provide steps on how to use them using helm charts
+then we have to deploy nginx ingress controller in k8s and later create ingress object based on the requirement
+At the end, ingress controller is nothing but load balancer.
+
+Images u can use is:-
+nginx
+okteto/hello-chaos
+
+Pods status:-
+
+Container creating
+Pending:- image is getting pulled from docker hub r registry
+Crashloopback off:- container doesnot have enough resources 
+ErrImgPull:- image cannot be pulled from registry
+ImagePullBackOff:- this is basically observed when there are some issues with the image.
+
+Config Maps:-
+
+A ConfigMap in Kubernetes is used to store configuration data like key-value pairs separately from application code. It helps you manage settings (like URLs, modes, limits) without changing or rebuilding your app.
+
+Issues without configmap:-
+
+1. hardcode the values in the application code leading to creation of multiple images for multiple environments.
+2. defining them as env in the pod definition will lead to chaning the definition if the value changes and no reusable if some other pod uses the same values
+
+Video:- https://www.youtube.com/watch?v=f-DqMTxs5z8&t=1289s
+whenever a backend application has to communicate with DB, it will need username, password and few other things to communicate with DB.
+So, we have to pass this values as environment variables for the backend application/container and its is better to pass this variables in some file instead of hardcoding them because in  future if those values get changed then it is difficult to access DB.
+In k8s to do this we have configmaps.
+So in configmaps we store all the details such as username, password, db port and all other details that will be required by the application and this configmap will be passed as environment variable to the application.
+if the pwd,port changes we can change the configmap, instead of changing each container environment variables.
+
+There are 2 ways to pass environment variables to pods using configmap:-
+1. create configmap and pass them in the pod definition
+problem with this:- suppose you would have created a pod and that pod is using configmap file and DBport value 33, later you would have changes the value of DBport to 34 in configmap. but the pod is still having 33 and is not aware of 34. we cannot restart our pods to reflect because there will be traffic
+To solve this, we will use Volumemounts
+2. VolumeMounts:- instead of using environment variables we will create a volume and mount it.
+here if you do "env" u cannot see the variable value, they are copied on the folder that we mounted and we can print the variable value.
+the changed values get updated even without restarting the pods.
+
+3 ways to create configmap:-
+
+1.  from literals:-
+kubectl create configmap my-config \
+  --from-literal=APP_ENV=production \
+  --from-literal=APP_DEBUG=false
+
+2. from YAML manifest:-
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  APP_ENV: production
+  APP_DEBUG: "false"
+
+3. from a file:-
+kubectl create configmap my-config --from-env-file=env.properties :- Each line in the file becomes a key-value pair in the ConfigMap.
+kubectl create configmap my-config --from-file=config.txt :- If you pass a file, the filename becomes the key, and the file content becomes the value.
+If you pass directory name, each file in the directory becomes key, and its contents become value.
+
+Best way to create:-
+kubectl create configmap ${{ inputs.configmap-name }} --from-file="$TMP_DIR" -n ${{ inputs.namespace }} --dry-run=client -o yaml | kubectl apply -f -
+This creates configmap if it doesnot exists, if it already exists it will update it.
+
+To check environment variables inside a running Pod, you have to exec into the pod 
+and do "env" 
+
+Field	     Description
+data	             Stores UTF-8 encoded strings (i.e., plain text). This is the most common way to store config values like environment variables, config files, etc.
+binaryData	Stores binary content, such as images, compiled files, or any non-text data. The values must be base64-encoded.
+
+Errors Observed:-
+CreateContainerConfigError:- this usually occurs when there is issue with configmaps, both config and the container using the configmap must be in the same namespace.
+
+Secrets:-
+secrets also solves the same problem but it deals with sensitive data.
+the data is encrypted at rest. and the encrypted data is stored in etcd, even if the hacker tried to access etcd he cannot decrypt the encrypted data.
+but using kubectl describe the hacker may try to access the data, so we will tell the creator/user to give access to secrets based of RBAC.
+
+Storing sensitive data like passwords or API keys directly in Pod specs or ConfigMaps is risky. Secrets help:
+Avoid hardcoding credentials in source code.
+Prevent accidental exposure in logs or terminal output.
+Limit access using Kubernetes RBAC (Role-Based Access Control).
+
+Aspect	                                 Default	                                               Notes
+At rest (in etcd)	               ❌ Not encrypted by default	           Just Base64-encoded unless you explicitly enable encryption
+In transit (API requests)	      ✅ Encrypted via TLS	                   Secured with HTTPS when communicating with the API server
+Visible in YAML	              ✅ Base64-encoded	                           Prevents casual viewing but is not secure encryption
+Viewable in kubectl describe	❌ Hidden	                                  Only shows key names and sizes (not actual values)
+ 
+
+Types of secrets
+
+1. Opaque:- Opaque is the default Secret type if you don't explicitly specify a type in a Secret manifest. When you create a Secret using kubectl, you must use the generic subcommand to indicate an Opaque Secret type. For example, the following command creates an empty Secret of type Opaque:
+
+2 ways of creating Opaque:-
+1. kubectl create secret generic my-secret \
+  --from-literal=username=admin \
+  --from-literal=password='s3cr3t'
+
+Note:- we cannot directly give secret values in YAML they must be base64 encoded using below if you use "data", if you use "stringData" k8s will encode them for u:-
+when we describe the secret, we cannot see the values like it is visible in configmap, it will show as bytes
+The values are only visible if you exec inside the pod.
+even in the AWS UI, they are in base64 encoded format.
+
+2. echo -n 'matle' | base64
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret2
+type: Opaque
+data:
+  username: bWF0bGU=
+  password: NDU2Nw==
+
+2. Dockerjson and Dockerconfigjson:- this is basically used to authenticate to ECR registry to pull the image.
+Command to create:- kubectl create secret docker-registry ecr-secret-2 \
+  --docker-server=<AWS_ACCOUNT_ID>.dkr.ecr.us-west-2.amazonaws.com \
+  --docker-username=AWS \
+  --docker-password="$(aws ecr get-login-password --region us-west-2)"
+
+NOTE:- Yes, a single Kubernetes secret (created using AWS ECR credentials) can be used to pull images from any repository under that same ECR registry. same aws account id, same region and the pod running must be in the same namespace as the k8s secret.
+
+NOTE:- without imagepullsecrets, you will face below error:-
+Failed to pull image "...": unauthorized
+2. ImagePullBackOff / ErrImagePull
+3. Failed to pull image "ghcr.io/myorg/app:latest": unauthorized
+Back-off pulling image "ghcr.io/myorg/app:latest"
+
+3. TLS secrets:- It consists of a TLS_cert and TLS_KEY
+
+NOTE:- there are 3 ways of referring configmaps/secrets in deploymeny YAML definition, 
+1. use configmapkeyref/secretkeyref to get a single key from the resource.
+2. using configmapref/secretref to get all the keys.
+3. Mount using volumes to get all the keys and also no need to restart the pods of the values changes, they are automatically fetched.
+
+
+Kubernetes Storage:-
+
+Pods are ephimeral which means when a pod is deleted the data associated or created by the pod is deleted. so we have kubernetes volumes.
+
+1. Volumes:-
+prob 1:- Replica set makes sure that specific number of pods are always up and running, if a pod goes down, it will bring up a new pod but the data that was created by old pod cannot be restored.
+Prob 2:- By default data is stored in the containers and not shared with other pods.
+
+Using volumes we can share the data across the pods and persist the data even if the pods are lost
+
+
+Makefile Tutorial:-
+
+MK files are usually used while writing code in c and c++.
+.c files:-
+c files are source code files written in the C programming language. They contain the actual code that a programmer writes to create a program.
+.o files:-
+When a . c file is compiled, it is transformed into a .o file, which is an object file.
+
+what id the makefile:-
+whenever a .c file is create, we compile it and .o file is created and using the .o files we will get our output.
+if we make some changes in the .c file, then we have to recompile the .c files to .o files, so to skip this step makefiles will help us.
+
+K8s Namespaces:- (video source:- https://www.youtube.com/watch?v=yVLXIydlU_0)
+
+Control-plane related components gets created in the kube-system namespace.
+
+usecases:-
+1. Objects in different namespaces can have same name without conflicting with each other.
+2. Access Control:- Namespace provides access control at namespace level using RBAC.
+For example, a team working on a development environment may have read and write access to their namespace but only read access to the production namespace.
+You can control the access to pods using network policies
+3. resource Management:- You can set resource quotas per namespace, which limits the amount of resources (CPU, memory, etc.) that can be used by the resources within that namespace. This prevents one project or team from overusing the cluster's resources and affecting others
+
+Pod-to-pod communication → Allowed by default unless you apply NetworkPolicies.
+User-to-pod access → Controlled by RBAC + IAM role mapping.
+
+1. pods that are deployed on the same node can communicate with each other, even if they dont belong to the same ClusterIP service.
+This is because they share the same network namespace, allowing them to reach each other directly.
+2. Pods from different namespaces can communicate with each other using IP address of the pods, As IP address is not static we will expose them to service.
+3. Pods from one namespace cannot access pods from other namespace using service name(hostname) instead we should use Fully Qualified Domain name(FQD).
+4. /etc/resolv.conf:- file resposnsible for doing IP to DNS resolution internally and also contains "FQD" name.
+5. using FQD name along with service name we can access the service from one namespace to the other.
+6. Pods in the same namespace can access the service using only "hostame" they dont "FQD" name.
+
+eg:- I) kubectl exec -it <pod_name> -- sh
+II) #curl <service_name> 
+O/P:-could not resolve host <service_name>
+III) #curl <service_name>.<FQD>
+O/P:- success
+
+eg:- Add the namespace to deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+  namespace: my-namespace  # Specify the namespace here
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-app-container
+          image: my-app-image:latest
+          ports:
+            - containerPort: 8080
+
+
+Resource Quotas in Namespaces:-(Video source:- https://www.youtube.com/watch?v=rVlZ8XxMD4U)
+
+1. Namespace Resource Quotas in Kubernetes are used to limit the amount of resources that can be consumed within a specific namespace.
+2. Resource quotas allow Kubernetes administrators to control the consumption of resources like CPU, memory, storage, and other types of resources, so that individual teams or applications within a namespace do not consume all available resources on the cluster, leading to resource contention or failure to schedule new pods.
+3. explain dev & QA example where QA using all
+4. https://kubernetes.io/docs/concepts/policy/resource-quotas/
+
+important Notes:-
+
+1. Pods in the same k8s cluster can communicate with each other directly by using their IP address or using the service name.
+2. Pods in different namespaces can communicate with each other directly using IP address or using FQDN.
+3. Pods in the k8s cluster cannot be accessed outside the k8s cluster using their IP address, they can be accessed using NodePort, externalIP, LoadBalancer or portforwarding.
+
+
+Network policies:-
+NOTE: the networkpolicy and the pods to which the np will be applied must be in the same namespace or else the pods will not be isolated.
+NOTE:- Your egress rule only uses podSelector, not namespaceSelector. If the destination pod is in a different namespace, and you don’t allow that namespace explicitly, traffic may be blocked. So, whenever you are using only podselector in ingress/egress make sure the pods are in the same namespace as the np, or else you will have to specify the namespace selector as well.
+
+If you are facing any issue even after ingress/egress rules are applied and pods are not accessible just use like below:-
+When a NetworkPolicy is applied to a pod, all traffic is denied by default, unless explicitly allowed. So if your egress rule is too narrow, other needed traffic (like DNS, API calls, etc.) may be blocked.
+egress:
+- to:
+  - namespaceSelector: {}
+
+1. NP allows to control traffic at podlevel.l.
+2.This will restrict any ingress traffic to the pods but the egress is unaffected.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: net1
+  namespace: name1
+spec:
+  podSelector:
+    matchLabels:
+      run: pod2
+3. For below no Ingress traffic will be allowed on the pods but Egress will be unaffected, traffic will be allowed out of the pods.
+spec:
+  podSelector:
+    matchLabels:
+      app: pod1
+  policyTypes:
+  - Ingress
+4. If you traffic to be restricted then
+spec:
+  podSelector:
+    matchLabels:
+      app: pod1
+  policyTypes:
+  - Ingress
+  - Egress
+ ingress: []
+3. If networkpolicy is applied on pod1 but still it can access pod2, but pod2 cannot access pod1 without ingress definition.
+4. We need to specify the namespace for ingress if you want the pods from different namespace to access it
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-specific-pod
+  namespace: name1
+spec:
+  podSelector:
+    matchLabels:
+      run: pod2
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: source-namespace
+      podSelector:
+        matchLabels:
+          run: pod1
+    ports:
+    - protocol: TCP
+      port: 80
+
+Authentication and Authorization:-
+
+whenever you execute any kubectl commands it will get you the desired output by communication with api server, how it is doing authorization?
+
+1.  Authentication:- If the IAM user/role has neccessary policies attched to them then they can access the EKS cluster by using the details(server details, certificates) that are present in kubeconfig, so before you perform any actions in EKS cluster, make sure you have kubeconfig
+2. Authorization:- Once the authentication happens, then to whichever user authentication happens, RBAC is checked and based on the roles/clusterroles they can authorize k8s resources.
+Note:- whenver you want to use kubectl, make sure you have .kubeconfig setup, so that it can get the credentials of the k8s cluster to interact with it.
+kubeconfig is not required when you are accessing from AWS UI.
+Note:- there are many authorization modes, based on the authorization mode(RBAC, NODE) your cluster uses, it will perform the actions in EKS
+
+Important note:-
+All the certificats and keys that are required by the api server to communicate with other cluster componenets are stored on the node where the apiserver is running in the directory /etc/kubeernetes/pki
+
+Think of it  kubeconfig like this:
+
+Step	Who Handles It	   What Happens
+You run kubectl get pods	     kubectl + kubeconfig	Authenticates using IAM/token
+Request reaches API server	Kubernetes API	Verifies token (authentication)
+Kubernetes checks RBAC	Kubernetes RBAC	Determines if you're allowed to list pods (authorization)
+
+Note:-
+we have kubeconfig which contains the details to authenticate to EKS, then why do we need "aws login", because kubeconfig command requires valid AWS credentials to generate a short-lived authentication token that will fetched via "get-token" in kubeconfig file.
+Authentication token will be generated everytime you execute "kubectl".
+If --role-arn is not specified with "aws eks update kubeconfig" it will use the current login credentials role.
+The user in config file and the IAM role arn with which login has happened can be different.
+
+
+why do we need kubeconfig?
+
+Beacuse in case of multiple clusters, you kubectl command should know to which cluster it has to authenticate and interact to fetch the details
+
+kubectl needs to know where the cluster is (API server URL).
+It needs to know how to authenticate (via the exec plugin).
+It needs to know which context to use (cluster + user + namespace).
+
+
+RBAC
+Video:- https://www.youtube.com/watch?v=uGcDt7iNFkE&list=PLl4APkPHzsUUOkOv3i62UidrLmSB8DcGC&index=24
+
+IAM Policies: Define what AWS resources IAM users and roles can access.
+Roles and RoleBindings: Define what Kubernetes resources users can access within the cluster.
+aws-auth ConfigMap: Maps IAM users and roles to Kubernetes users and groups, enabling IAM entities to authenticate and be authorized within the Kubernetes cluster123.
+
+IAM Roles and K8s RBAC are similar but they are not same things
+IAM roles:- This particular role can access all the resources in AWS if the specific permissions(policies) are attached to it.
+IAM role defines who can access the k8s cluster(Authentication).
+RBAC roles:- This role can access only k8s resources(pods, secrets) within the k8s cluster or namespace.
+RBAC role defines what they can do inside the k8s cluster(Authorization).
+
+Think of it like entering a building:-
+
+IAM is like the security badge that lets you into the building.
+RBAC is like the permissions on your badge that determine which rooms you can enter or what actions you can perform (e.g., read-only access vs admin access).
+
+Access Type	               Controlled By	PowerUserAccess Helps?
+Create EKS cluster	         IAM	                       ✅ Yes---------> add the role in "IAM" section of the EKS cluster, if any role other than poweruseraccess
+Connect to EKS cluster	IAM + aws-auth	✅ Partially (needs mapping)
+Run kubectl commands	Kubernetes RBAC	❌ No (needs RBAC roles)
+
+Some commands
+
+1. kubectl auth can-i get pod:- To check if you have access to k8s pods
+o/p:- yes
+2. kubectl auth whoami
+o/p:- kubernetes-admin
+
+To provide authorization to a user to k8s resources, you have to create a role, below is the sample yaml:-
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: dev
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+
+Rolebinding eg:-
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods-binding
+  namespace: dev
+subjects:
+- kind: User
+  name: jane
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+Notes:- There are 2 types of "apiGroups", one is "v1", 2nd one is "xxx/v1"or "v1/xxx".
+If apiGroup is empty it means include "v1" type objects
+
+Note:-
+1. Roles/Rolebindings are namespace scoped. eg:- pods, deployments, services
+2. If you dont specify any namespace in the role definitions, they become clusterscoped
+2. CluserRoles/ClusterRolebinding are cluster scoped. eg:- namespaces, nodes
+
+ClusterRole/ClusterRolebinding:-
+
+1. kubectl api-resources --namespaced=true:- lists the resources that are can be scopes at namespace level.
+2. kubectl api-resources --namespaced=false:- lists the resources that are can be scopes at cluster level.
+
+Video:- https://www.youtube.com/watch?v=DswQe7shSa4&list=PLl4APkPHzsUUOkOv3i62UidrLmSB8DcGC&index=25
+
+EKS cluster:- Cluster authentication mode:- EKS API
+In my EKS cluster im using cluster authentication method as EKS API and i have added the role in the access tab of EKS cluster, now my IAM role is able to access the k8s resources of EKS cluster, but as per my research nobody can access the k8s resources until they have RBAC role binding, but in my case how is it possible, whats happening internally?
+
+When you add an IAM role in the Access tab of the EKS console, you're actually doing two things behind the scenes:
+
+Authentication: You're telling EKS, “This IAM role is allowed to log in.”
+Authorization: You're also assigning a default access policy (like AmazonEKSAdminPolicy or AmazonEKSViewPolicy) to that role.
+➡️ These EKS access policies are automatically mapped to Kubernetes RBAC roles by EKS.
+
+EKS Access Policy	Kubernetes RBAC Equivalent
+AmazonEKSAdminPolicy	cluster-admin
+AmazonEKSViewPolicy	Read-only access to all resources
+AmazonEKSEditPolicy	Read/write access to most resources
+
+
+Notes for RBAC:-
+1. To provide authorization to a user to access k8s resources, we need to create roles(specific to namespace) and assign the roles to user via rolebinding.
+2. If you want to change the user who can access the k8s resources, that can be done by using kubeconfig
+
+EKS cluster 
+
+
+
+Helm Charts:-
+Video;- https://www.youtube.com/watch?v=DQk8HOVlumI
+
+1. Helm is Package manager in k8s
+2. Package manager in ubuntu is "apt" and on centos is "yum"
+
+why do we need helm chart?
+1. whenever we are working with k8s cluster we will have to deal with a lot of yml files and execute kubectl command multiple time to deploy those yml files.
+2. If we use helm chart we can have all those yml files in a single chart and just executing helm command once will deploy all those yml files.
+
+How helm charts will help us to manage k8s cluster?
+1. without helm chart
+kubectl apply -f deployment.yml
+kubectl apply -f service.yml
+kubectl apply -f ingress.yml
+
+2. with helm chart
+helm install myapp  ./my-chart
+
+pre-requisite for installing helm chart:-
+1. you must have k8s cluster(EKS, AKS) to install the helm chart
+2. Install kubectl and helmchart
+
+
+
+1. Helm internally communicates with kubectl to know which cluster it has to communicate with
+
+Helm commands:-
+
+1. heml create <name of the helmchart>:- to create helm chart
+It will create a folder with name specified, and that folder will contain few .yml files by default.
+
+2. heml install <release name for helm chart> <name of the helm chart created>:- to install helm chart in the k8s cluster
+
+3. helm list -a:- it will list the helm charts that are installed
+
+4. heml upgrade <release name for helm chart> <name of the helm chart created>:-
+If any changes in the .yml files(eg:- replica count), then to implement that you must use this command.
+when you execute this command, and if there are any changes a new revision will be created.
+
+5. heml rollback <release name for helm chart> <revision number>
+
+6. To debug and dry-run:-
+helm install <release name for helm chart> --dry-run --debug <name of the helm chart created>:- intercats with k8s api server to validate the helm chart
+
+7. helm template <name of the helm chart created>:-
+It does not interact with k8s api server, it just locally validates it.
+
+8. helm lint <name of the helm chart created>:- Find any errors or misconfiguration
+
+9. helm uninstall <release name for helm chart>
+
+Kustomize:-
+video:- https://www.youtube.com/watch?v=Ks0PMh70GTY
+1. kustomize is k8s native configuration management tool.
+
+what is Kustomize:-
+1. kustomize is builtin with kubectl  we dont have to install it explicitly
+my-app/
+├── base/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── kustomization.yaml
+└── overlays/
+    ├── dev/
+    │   ├── kustomization.yaml
+    │   ├── configmap.yaml
+    │   └── patch.yaml
+    ├── staging/
+    │   ├── kustomization.yaml
+    │   ├── configmap.yaml
+    │   └── patch.yaml
+    └── prod/
+        ├── kustomization.yaml
+        ├── configmap.yaml
+        └── patch.yaml
+
+1. check on Kustomize Transformers:- https://github.com/kubernetes-sigs/kustomize/blob/master/examples/transformerconfigs/images/README.md
+2. Patches:- JSON patching and Strategic Merge patching
+3. Inline and file based patching
+4. Components
+5. generators
+Video link:- https://www.youtube.com/watch?v=zNqibPchN18&list=PLamZM2ehvxwygLli3RHkB_sRnvlcGEIO7
+
+Service Account(SA):- Video:- https://www.youtube.com/watch?v=k2iCq7IlMKM&list=PLl4APkPHzsUUOkOv3i62UidrLmSB8DcGC&index=26
+https://www.youtube.com/watch?v=tHz_kF7TLkU&t=322s
+
+1. There are 2 types of users in k8s:- Human and service account
+2. service account is not used by humans, it is used by applications, bots
+3. for eg:- let us say i have a Jenkins Pipeline that has to be executed on a cronjob every morning 9am, this build will appear as it has been executed by a service account(Bot), If a normal user exceutes it will appear with his/her name.
+4. Whenever you create a k8s cluster, a service account will be created by default in all namespaces.
+5. To create SA:- kubectl create serviceaccount <name-of SA>.
+6. similar to general user/role, RBAC roles/rolebinding must be added SA to access k8s resources.
+7. Whener a pod is created and wants to communicate with other k8s resources a SA is created and attached to it by default and the pod uses that SA, if you specify  a SA externally to the pods, then the pods use custom SA.
+
+What is Service Account?
+In Kubernetes (K8s), a Service Account is a special type of account used by pods to interact with the Kubernetes API server. It provides an identity for processes that run in a pod, allowing them to authenticate and perform actions within the cluster.
+
+Key Concepts of Service Accounts:
+
+Default Service Account:-
+Every namespace has a default service account named default.
+If you don’t specify a service account for a pod, it automatically uses this one.
+This default SA will not have any roles/permissions to access the k8s resources but with the help of token mounted onto the pod it can authenticate to api server.
+To access k8s resources you can externally specify roles/role bindings
+default SA mount:-     Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-p8vgl (ro)
+
+Custom Service Accounts:-
+You can create your own service accounts to give pods more specific permissions.
+This is useful for applying the principle of least privilege—only granting the permissions a pod actually needs.
+
+Authentication & Authorization:-
+When a pod runs, Kubernetes mounts a token (JWT) into the pod at /var/run/secrets/kubernetes.io/serviceaccount/token only if you specify the SA name in your pod defintion yaml.
+This token is used to authenticate the pod to the Kubernetes API and is mounted to the pod at time time and is present at the location /var/run/secrets/kubernetes.io/serviceaccount/token
+
+RBAC (Role-Based Access Control):
+You can bind a service account to specific roles using RoleBindings or ClusterRoleBindings.
+This controls what actions the pod can perform (e.g., list pods, create deployments, etc.).
+
+Creation of SA:-
+1. kubectl create <SA_name> -n <namespace_name>, If you want to attach roles to your service account then you should use "kubectl annotate serviceaccount ${{ inputs.service-account-name }} -n ${{ inputs.namespace }} eks.amazonaws.com/role-arn=${{ inputs.service-account-role }} --overwrite"
+2. using yaml definition, You can create roles and attach them using rolebindings.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-location-imaging-search-imaging-webapp-qa
+  namespace: imaging-webapp-qa
+  annotations:
+    eks.amazonaws.com/role-arn: ${SERVICE_ACCOUNT_ROLE}
+
+To check if your pod is using default or custom SA, describe the pod there is field "serviceaccount" which says what SA is being used.
+
+IRSA:- IAM role for service account
+NOTE:- If service account does not have neccessary permission we will get "403" error.
+
+For the serviceaccount to be used by Pod it must be specified in Pod definition:-
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+  namespace: default
+spec:
+  serviceAccountName: my-service-account
+  containers:
+  - name: app
+    image: busybox
+    command: ["sh", "-c", "echo Hello from pod; sleep 3600"]
+
+1. TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+
+Note:- serviceaccount with access to ECR helps the pods to pull the image from ECR, it does not require any "imgpullsecret"
+
+
+
+User management in K8s:- (Video:- https://www.youtube.com/watch?v=1slRgW2IzJY&t=821s)
+
+1. We have discussed that access to k8s will be provided based on role/rolebindings attched to users. But the question is how to create these users? If its linux server we use "useradd" command to create user. But how are we gonna create users in k8s(AKS,EKS).
+2. K8s doesnot deal with user management. k8s offloads the user management to Identity Providers.eg:- for EKS it can be IAM as Identity provider or LDAP.
+3. Here we are not basically creating users in k8s, what we are saying use some third party applications to create users for k8s. for eg:- If you want to create ig account, you can do it by directly using google/fb account, this will create a IG account for you, same in k8s also.
+
+ImagePullSecrets:-
+
+1. This is basically added in the deployment.yml.
+2. This is needed because whenever you are pulling image from private registries like ECR/ACR, you will need the credentials to authenticate it and fetch the required data.
+
+Kong Gateway:-
+https://www.youtube.com/watch?v=rTcj7znJVZc
+
+
+TAINTS AND TOLERATIONS:-
+
+A taint is applied to a node and allows a node to repel a set of pods. It has three parts:
+
+Key: A label key.
+Value: A label value.
+Effect: What happens to pods that don’t tolerate the taint. Can be:
+NoSchedule: Pod won’t be scheduled on the node.
+PreferNoSchedule: Kubernetes will try to avoid placing the pod on the node. but there is no guarantee that pods will not be placed on to the node that does not have tolerations.
+NoExecute: Existing pods will be evicted if they don’t tolerate the taint.
+
+kubectl taint nodes node1 key=value:NoSchedule
+
+toleration is applied to a pod and allows the pod to tolerate a node’s taint.
+tolerations:
+- key: "key"
+  operator: "Equal"
+  value: "value"
+  effect: "NoSchedule"
+
+Explain how you implemented taints and tolerations in you organization:-
+1. firstly we were using EKS cluster, so if you go to "compute" section in AWS console of EKS cluster, you can see node groups that has been created by infrastructure team.
+2. They have created node groups(combination of multiple nodes) for each team/application.
+3. Later they have tainted this node group like below, so that only those application pods can be deployed onto these nodes.
+Kubernetes taints (1)
+Key Value Effect
+dedicated digital-experience NoSchedule
+4. later tolerations are applied to pods of those applications like below:- 
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "digital-experience"
+          effect: "NoSchedule"
+
+NODE SELECTORS:-
+https://www.youtube.com/watch?v=nwoS2tK2s6Q&list=PLl4APkPHzsUUOkOv3i62UidrLmSB8DcGC&index=15
+
+If you want the pod to be deployed on to the node of its choice then  you should use nodeselector.
+1. Apply label to the node:- kubectl label nodes node-1 disktype=ssd
+2. specify nodeselctor on the pod:- 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ssd-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+  nodeSelector:
+    disktype: ssd
+
+The limitation with nodeselector is that we cannot add expressions, logical or n and or conditions, so that the pod can be deployed on mutiple nodes.
+To overcome this we have nodeaffinity and node anti-affinity.
+
+NODE AFFINITY:-(video:- https://www.youtube.com/watch?v=5vimzBRnoDk&t=1499s)
+This is basically defined in the pod YAML definition helping the pods to be assigned on to the nodes of their choice.
+The nodes must have the matcing labels.
+
+1. IgnoredDuringExecution:- If the pod has been assigned to a node because of affinity, later the labels on the node that match the affinity are no longer available, the pods will still keep running on the node, it will not assign new pods that does not match the affinity.
+2. requiredDuringScheduling:- The pod will check for the affinity labels on the nodes, if the labels are found then only it will assign, or else it will be in pending state.
+3. preferredDuringScheduling:- the pod will check for the affinity labels on the nodes, if the labels are found then it will assign it to that node or else it is ok assign to any available nodes 
+
+NOTE:- Taints and Affinity are always used together in most scenarios.
+Whenever you are using nodename, node selector, or node affinity, if the nodes are not to able to schedule the pods, the deployment will make sure to have 2 running pods, so it will create infinite pods, so make sure you delete the deployments carefully.
+
+eg:- 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: disktype
+            operator: In
+            values:
+            - ssd
+
+
+HEALTH CHECKS:-
+Probes:-
+monitoring/inspecting the system and taking necessary actions.
+
+Health Probes:- they will monitor/inspect the pods and make sure they are running fine without any issues.
+
+
+1. Liveness Probe:-
+ 
+POINT3:-
+See pods will be restarted automatically right if there is some issue then why do we need liveness probe?
+
+Kubernetes restarts containers only when they crash or exit. But what if:
+The container is running, but the application inside is stuck or unresponsive?
+The process is alive, but it's not serving traffic or is in a deadlock?
+In these cases, Kubernetes won’t know there's a problem — because from the outside, the container is still "running.
+
+livenessprobe:-
+This will continuously monitor the application for a every few seconds as mentioned. If there is any network error or something that can be resolved by restarting then this probe will take care.
+Even after restarting if the application does not behave as expected then it will notify the team.
+A liveness probe in Kubernetes is a way to check whether your application inside a container is still alive and functioning properly. If the liveness probe fails repeatedly, Kubernetes will automatically restart the container, even if it hasn't crashed.
+1) Get stuck in an infinite loop
+2) Hang due to a deadlock 
+3) Stop responding to requests
+
+eg:- 
+livenessProbe:
+  httpGet:----------------->Kubernetes will send an HTTP GET request to http://<pod-ip>:5000/health.
+    path: /health
+    port: 5000----------->this is domething that you can find in your dockerfile or manifest YAML
+  initialDelaySeconds: 10---------------->Kubernetes waits 10 seconds after the container starts before performing the first health check.
+  periodSeconds: 10------------------->After the initial delay, Kubernetes will send a health check every 10 seconds.
+  timeoutSeconds: 2-------------------->If the app doesn’t respond within 2 seconds, the probe is considered failed.
+  failureThreshold: 3------------------>If the probe fails 3 times in a row, Kubernetes will restart the container
+
+(I)path:- /health must be present in your code
+for eg:- If your code is C#/dotnet then in startup.cs you must have something like below, you cannot just give some random path
+
+builder.Services.AddHealthChecks();
+var app = builder.Build();
+app.MapHealthChecks("/health");
+
+What Actually Happens in Practice:
+Your app starts.
+Kubernetes waits 10 seconds.
+It sends a GET request to /health on port 5000.
+If the app responds with a status code 200–399, it’s healthy ✅.
+If it times out, returns 500, or is unreachable, it’s unhealthy ❌.
+After 3 consecutive failures, Kubernetes restarts the container.
+
+Here are a few common causes:
+
+Cause	                                           Description	                                                        Fix
+Too short initialDelaySeconds	        App isn’t ready yet when the probe starts	Increase to 10–30 seconds
+Low timeoutSeconds	                App takes longer to respond	                       Increase to 2–5 seconds
+Aggressive failureThreshold	         Fails too quickly	                                       Increase to 5 or more
+App is actually crashing	                Bug, missing config, or resource limits	          Check logs with kubectl logs
+
+
+2. Readiness Probe:-
+This will make sure that the application is running and is ready to accept the traffic from the user only then it will be added to the load balancer or else the end user will get errors.
+
+3. Startup probe:-
+for applications/pods that take a lot of time to start.
+
+3 ways to Probe in k8s:-
+1. HTTP
+2. Command
+3. TCP
+
+IMPORTANT POINTS 1:-
+When does the k8s delete the old pods and create new pods.
+1. Pod Template Change (e.g., image update)
+If you update the Deployment (e.g., change the container image), Kubernetes will terminate the old pod and create a new one.
+Status: Old pod will be Terminating, and a new pod will be Pending → Running.
+
+2.Node Failure
+If the node hosting the pod goes down, the controller will create a new pod on a healthy node.
+Status: Old pod may be Unknown or NotReady, then deleted.
+
+3. Manual Deletion
+If you manually delete a pod (kubectl delete pod <pod-name>), the controller will recreate it.
+Status: Terminating, then a new pod is created.
+
+4.Readiness/Liveness Probe Failures
+If a liveness probe fails, the container is restarted.
+If the pod repeatedly fails readiness/liveness checks, the controller may replace it depending on configuration.
+
+5.Eviction (e.g., due to resource pressure)
+If the node is under memory or disk pressure, pods may be evicted and recreated elsewhere.
+
+6. Horizontal Pod Autoscaling
+When autoscaling is enabled, Kubernetes may create new pods or delete existing ones based on CPU/memory usage or custom metrics.
+
+7. CrashLoopBackOff with Restart Failures
+If a container repeatedly fails (e.g., due to liveness probe failures), and the pod is managed by a controller like a Deployment, Kubernetes may eventually delete the pod and create a new one to maintain the desired state.
+
+POINT3:-
+
+Not just the labels that u define in labels section get added to the pod, k8s also add a pod-template-hash to the pods if they are generated by replicaset or deployment.
+The Deployment creates a ReplicaSet with a pod-template-hash label.
+If no labels are assigned for deployment, the labels section is empty, it will have selectors(without pod template hash), rollingupdate and pod template section
+The ReplicaSet’s job is to maintain the desired number of Pods (e.g., 3 replicas).
+When you describe it will contain labels(with pod-template-hash) that are same as pod template section labels, selectors, pod template.
+eg:- 
+C:\Users\venAMatle>kubectl get pods --show-labels
+NAME                              READY   STATUS    RESTARTS   AGE   LABELS
+dotnet-config-68f487465d-2qgn9    1/1     Running   0          21h   app=dotnet,pod-template-hash=68f487465d
+dotnet-config-68f487465d-zh298    1/1     Running   0          21h   app=dotnet,pod-template-hash=68f487465d
+
+POINT2:-
+scenario:-
+I have 2 pods deployed and running successfully on the k8s cluster using deployment manifest YAML.
+later i made some changes to the YAML and applied it, so this will delete the old pods and create new ones.
+the new ones that are created going into "crashloopbackoff" error, k8s will try to restart them, but it will not rollback to the previous deployment by default.
+Continue the rollout until the maxUnavailable threshold is hit (default is 25% of replicas).'
+
+RESOURCE REQUESTS and RESOURCE LIMITS:-
+Memory Limit Exceeded:-
+Result: The pod is terminated.
+Why: Memory is a non-compressible resource. If a container tries to use more memory than its limit, the kernel OOM (Out Of Memory) killer will terminate the container.
+Effect: The pod may be restarted depending on its restart policy.
+
+CPU Limit Exceeded:-
+Result: The container is throttled, not killed.
+Why: CPU is a compressible resource. If a container exceeds its CPU limit, Kubernetes throttles it, meaning it gets fewer CPU cycles.
+Effect: The application may slow down, but it continues to run.
+
+METRICS SERVER:-
+
+Imagine you have a smart home with many devices—lights, fans, ACs, etc. You want to know how much electricity each device is using so you can manage your power bill. The Metrics Server in Kubernetes is like a smart electricity meter for your computer programs (called "pods") running in the Kubernetes system.
+
+It collects basic performance data like:
+How much CPU each pod is using
+How much memory each pod is using
+
+This helps the system make smart decisions, like:
+"Should I add more pods because the current ones are overloaded?"
+"Can I remove some pods because they’re not doing much?"
+
+It is used by components like:
+Horizontal Pod Autoscaler (HPA) to scale pods based on CPU/memory usage.
+kubectl top command to show real-time resource usage.
+
+
+kubectl top nodes/pods:- this will display the available cpu and memory of the nodes, cpu and memory usage by the pods.
+This command will be available only if metrics server is installed.
+Whenever you create a EKS cluster, a metrics server will be installed by default as a community add-on.
+
+How It Works
+Kubelet on each node collects resource usage stats from the containers using cAdvisor.
+Metrics Server queries each Kubelet’s /metrics/resource endpoint.
+It aggregates the data and stores it in memory (not long-term).
+It exposes metrics via the Kubernetes API at:
+/apis/metrics.k8s.io/v1beta1/
+Tools like HPA or kubectl top use this API to get real-time metrics.
+
+
+HORIZONTAL POD AUTOSCALING:-(Video:- https://www.youtube.com/watch?v=x2e6pIBLKzw)
+Scaling is nothing expanding you resources here it's pods based on the workloads
+
+1. when we are using deployment, we manually updating how many replicas we want based on the load, so someone should always keep monitoring these pods 24/7 which is not suggested and which is kind of treated as drawback of deployment because to scale up or scale down pods has to be done manually.
+To overcome this k8s cameup with Autoscaling which means scale up/down the resources/pods based on the demand.
+
+2. There are 2 types of Autoscaling:- HPA(scale in/out) and VPA(scale up/down)
+3. In HPA, let us assume on a single node, there is a pod(1cpu, 1mem), and it is supporting some workload(user traffic) and it can support upto 5 users without any issue, let us assume the users have increased to 10, then there are chances that the pod will go down or it show low latency for user requests.
+To avoid this using HPA, what will do we will create new pods if cpu utilization recahes to 75% and if the traffic is less and if the cpu utilization becomes less than 25% then we will delete the existing pods.
+If you want to add more workload(pods) then use HPA.
+If you want to add infrastructure for eg nodes then it is Cluster Autoscaler.
+
+4. In VPA, it will replace the existing pod with a new pod of  CPU=10 and Mem=10, but the drawback here is the pod has to be restarted and application will be down for sometime.
+If you want to add more workload(pods) then use VPA.
+If you want to add infrastructure for eg nodes then it is Node Autoprovisioning.
+
+All these come by default only for cloud provided clusters(AKS,EKS), for local only APA is available by default.
+HPA and VPA are based on metric such as cpu, memory.
+there are other type of autoscalings as well:-
+1. Event based Autoscaling:- KEDA
+2. cron/schedule based autoscaling
+
+NOTE:- To implement HPA we need to have metric server installed on the k8s.
+Resource requests and resource limits(optional) is mandatory to implement HPA.
+Here's why:
+HPA relies on metrics like CPU or memory usage to decide when to scale pods.
+These metrics are calculated as a percentage of the resource requests.
+If you don’t set resource requests, the metrics server won’t have a baseline to calculate usage percentages, and HPA won’t function properly.
+If requests is 200m and max cpu is 50%, then if the pod reaches 100m then HPA will create a new pod for you, if its less than 100m then HPA will delete a pod.
+
+example:-
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: imaginglocationsearch-ui
+  namespace: imaging-webapp-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: imaginglocationsearch-ui
+  minReplicas: 3
+  maxReplicas: 5
+  metrics:
+    - type: ContainerResource
+      containerResource:
+        name: cpu
+        container: imaginglocationsearch-ui
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: ContainerResource
+      containerResource:
+        name: memory
+        container: imaginglocationsearch-ui
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+What actually happens:-
+
+HPA controller will check the metrics that is provided by metric server for every 30 sec interval, if any of the pods cpu/memory utilizasation is more than the specified limit for the pods its monitoring then it will create new pods.
+
+POINT:-
+Should the replicas in deployment and the minReplicas in the pod disruption budget should be same?
+If you enable HPA, the replicas value in the Deployment is often overridden by the HPA controller.
+It's common to set replicas to the same value as minReplicas, so that the system starts with the minimum expected number of pods.
+
+POD DISRUPTION BUDGET:-
+
+A Pod Disruption Budget (PDB) in Kubernetes is a policy that helps you maintain high availability for your applications during voluntary disruptions.
+
+Pods do not disappear until someone (a person or a controller) destroys them, or there is an unavoidable hardware or system software error.
+
+1. There are 2 types of disruptions I)Voluntary II)Involuntary
+
+2. Voluntary disruptions:-
+In Kubernetes, voluntary disruptions are events that intentionally cause pods to be terminated or evicted, but not due to failures or crashes. These are typically initiated by cluster administrators or application owner
+eg:- Cluster upgrades, draining a node, update deployment manifest, Evictions triggered by controllers(image updates)
+Pod Disruption Budgets (PDBs) are designed to protect against voluntary disruptions by ensuring that a minimum number of pods remain available during such events
+
+3. InVoluntary disruptions:- 
+Involuntary disruptions in Kubernetes are unplanned events that cause pods to be terminated or become unavailable due to failures or unexpected conditions in the system. Unlike voluntary disruptions, these are not initiated by administrators or automated maintenance processes.
+eg:- Node failure, deletion of node, hardware failure, OOM kills
+How Kubernetes Handles Involuntary Disruptions
+ReplicaSets and Deployments automatically try to replace failed pods.
+Node Controllers detect node failures and reschedule pods to healthy nodes.
+Liveness Probes can restart unhealthy containers.
+
+NOTE:- Imagine you have a service with 3 pods. If a node upgrade starts and all 3 pods are on the same node, without a PDB, Kubernetes might evict all 3 at once — causing downtime.
+Kubernetes will only allow 1 pod to be evicted at a time, ensuring at least 2 pods are always available
+
+eg:- 
+apiVersion: policy/v1          
+kind: PodDisruptionBudget
+metadata:
+  name: imaginglocationsearch-ui
+  namespace: imaging-webapp-prod
+spec:
+  minAvailable: 2              # ← keep ≥2 pods up at all times
+  selector:
+    matchLabels:
+      app: imaginglocationsearch-ui
+
+What Happens When a Voluntary Disruption Is Triggered
+
+A voluntary disruption is initiated
+
+For example:
+
+A node is being drained (kubectl drain)
+A cluster autoscaler wants to remove a node
+A user manually evicts a pod
+Kubernetes checks for a PDB
+It looks for a PDB that selects the pod (via label selectors).
+
+Kubernetes evaluates the PDB rules
+The PDB defines either:
+
+minAvailable: Minimum number of pods that must be available
+maxUnavailable: Maximum number of pods that can be unavailable
+Decision time
+
+If evicting the pod violates the PDB, Kubernetes blocks the eviction.
+If it doesn’t violate the PDB, the eviction proceeds.
+
+Evict the pods manually if it restricting u because of PDB:-
+kubectl get pods --field-selector spec.nodeName=<node-name>
+kubectl evict <pod-name> --force --grace-period=30
+
+TOPOLOGY SPREAD CONSTRAINT:-
+Topology Spread Constraints are a way to control how Pods are distributed across multiple AZ's or node across your cluster to improve availability, fault tolerance, and resource utilization.
+They are rules that ensure Pods are evenly spread across different topology domains such as:
+1. Nodes
+2. Zones:-
+Ensure your cluster spans multiple zones:
+When creating your cluster (e.g., in EKS), you must specify multiple subnets in different zones. So the k8s cluster nodes will be created in multiple zones.
+This allows the scheduler to place Pods in different zones.
+
+3. Regions
+4. Custom labels (like racks or availability zones)
+This helps avoid putting too many Pods of the same application on a single node or zone, which could be a single point of failure.
+
+example:-
+spec:
+      topologySpreadConstraints:
+        # “keep the replica count in every zone within ±1 of each other”
+        - maxSkew: 1
+          minDomains: 3                    # require three distinct zones
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule # hard guarantee
+          labelSelector:
+            matchLabels:
+              app: imaginglocationsearch-ui
+
+maxskew:-
+maxSkew defines the maximum allowed difference in the number of matching Pods between the most loaded and least loaded topology domains (like zones or nodes).
+It ensures even distribution of Pods across those domains.
+eg:- if you have 10 pods and 3 nodes, what might happen 5 pods can be deployed on node1, and 2 pods on node2, 3 pods on node3.
+If you have maxSkew is 1, each node can not have more than one pod when compared to other nodes, so the distribution will be like 4, 3 and 3
+
+minDomains:-
+minDomains is an optional field in topologySpreadConstraints.
+It specifies the minimum number of topology domains (like zones or nodes) that must be used when scheduling Pods.
+It works together with whenUnsatisfiable: DoNotSchedule.
+If your cluster has only 2 AZ's and minDomain has value 3, then your pods will ignore the maxSkew.
+
+topologyKey:-
+
+In TSC, we have different topology domains like nodes, zones.
+topologyKey	                                                                                         Meaning
+topology.kubernetes.io/zone	                                                Spread Pods across different zones
+kubernetes.io/hostname	                                                      Spread Pods across different nodes
+Custom label (e.g., topology.mycompany.com/rack)	Spread across custom-defined domains like racks or data centers
+The nodes must have these labels associated with them for eg:- topology.kubernetes.io/zone: us-west-2a
+ 
+How Kubernetes Uses It
+Here’s what happens under the hood:
+Kubernetes looks at all nodes.
+It checks the value of the label topology.kubernetes.io/zone on each node.
+It groups nodes by their zone values (e.g., all nodes in us-west-2a go into one group).
+It then tries to spread Pods evenly across these groups.
+
+WhenUnsatifiable:- 
+whenUnsatisfiable	               Behavior	                                                       Use Case
+DoNotSchedule(default)	Pod stays pending if constraint can't be met	   Strict HA requirements
+ScheduleAnyway	        Pod is scheduled even if constraint is violated	Best-effort spreading
+
+KUBERNETES STORAGE:-(Video:- https://www.youtube.com/watch?v=2NzYX8_lX_0&t=594s)
+In Kubernetes, storage refers to how data is stored, accessed, and managed for applications running in the cluster. Since containers are ephemeral (they can be stopped, deleted, or moved), persistent storage is essential for stateful applications like databases, file systems, and other services that need to retain data.
+
+Types of kuberenetes storage
+1. Volumes:-
+i)Emptydir
+ii)Hostpath
+iii)configmap and secret
+
+I) EMPTYDIR:-
+This volume is not created on the host or anywhere else, It is created inside the pod.
+This volume/data will exists as long as the pod exists, once the pod is deleted the volume will be deleted. so, basically the volume is tied to the lifecycle of a pod.
+Multiple containers of the same pod can use the emptydir volume.
+eg:-
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shared-volume-pod
+spec:
+  volumes:
+    - name: shared-data
+      emptyDir: {}
+  containers:
+    - name: writer
+      image: busybox
+      command: ["sh", "-c", "echo Hello from writer > /shared/message.txt && sleep 3600"]
+      volumeMounts:
+        - name: shared-data
+          mountPath: /shared--------------------------->this directory will be created if it does not exists inside the container filesystem
+    - name: reader
+      image: busybox
+      command: ["sh", "-c", "sleep 10 && cat /shared/message.txt && sleep 3600"]
+      volumeMounts:
+        - name: shared-data
+          mountPath: /shared
+
+NOTE:- To exec into a container, use below:-
+kubectl exec -it <pod-name> -c <container-name> -- /bin/bash
+
+II) HOSTPATH VOLUME
+A hostPath volume in Kubernetes allows you to mount a file or directory from the node’s filesystem directly into a pod. This is useful when your pod needs access to files or directories on the host machine.
+example:-
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpath-demo
+spec:
+  containers:
+  - name: container-one
+    image: busybox
+    command: ["sh", "-c", "while true; do echo Container One >> /data/log.txt; sleep 5; done"]
+    volumeMounts:
+    - name: shared-data
+      mountPath: /data
+  - name: container-two
+    image: busybox
+    command: ["sh", "-c", "tail -f /data/log.txt"]
+    volumeMounts:
+    - name: shared-data
+      mountPath: /data------------------------------------>path inside the container, if it does not exists it will be created
+  volumes:
+  - name: shared-data
+    hostPath:
+      path: /tmp/hostpath-demo------------------------------------->absolute path on the hostmachine
+      type: DirectoryOrCreate
+
+III) Configmaps and secrets
+Configmap example:-
+volumes:
+  - name: config-volume
+    configMap:
+      name: app-config-----------------------------> name of the cofimap u created
+containers:
+  - name: demo-container
+    image: nginx
+    volumeMounts:
+      - name: config-volume
+        mountPath: /etc/config----------------------->path inside the container
+
+NOTE:- If you pass them using "env" or "envFrom" they will be available as environment variables,
+If you pass them using volumes, they will be mounted on the specified mountPath and each key will be created as a file and its value will be created as file content.'
+They way to reference the configmaps/secrets if they are via volumes is different than if they are passed via environment variables.
+
+
+
+2) PERSISTENT VOLUMES AND PERSISTENT VOLUME CLAIMS:-
+
+PERSISTENT VOLUMES:-(Video:- https://www.youtube.com/watch?v=2NzYX8_lX_0&t=1825s)
+A Persistent Volume (PV) in Kubernetes is a piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using StorageClasses. It is a resource in the cluster, just like a node is a cluster resource.
+The actual storage can be:
+Local disk (for testing)
+Cloud storage (e.g., AWS EBS, GCP Persistent Disk, Azure Disk)
+Network storage (e.g., NFS, Ceph, GlusterFS)
+
+example:- Creation of PV in local
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data
+
+Drawbacks of HostPath:-
+The data is stored on the disk of one node (e.g., /mnt/data on Node A).
+If the pod using that volume is scheduled on Node A, it works fine.
+But if the pod is rescheduled to Node B, it won’t have access to that data — because the data physically lives on Node A
+
+Difference between "hostpath volume" and "persistent volume hospath":-
+hostPath volume:- is defined directly in a pod and mounts a specific path from the node’s filesystem — it's simple but tightly coupled to the node.
+PersistentVolume:- with hostPath wraps the same concept in a reusable, managed way using Kubernetes' PV/PVC model — better for abstraction and resource management.
+
+Example2:- creation of PV in cloud.
+You can manually define a PersistentVolume that points to a cloud resource (like an AWS EBS volume), but you must pre-create the cloud volume yourself and reference it in the PV.
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: aws-ebs-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  awsElasticBlockStore:
+    volumeID: vol-0abcd1234efgh5678
+    fsType: ext4
+
+STORAGE CLASS:-
+Storage class is usually suggested when you want to create the storage in cloud.
+If we use storage class it will dynamically create storage for you, you dont have to manually create the volumnes/storage
+
+A StorageClass in Kubernetes is like a storage menu. You tell Kubernetes what kind of storage you want (fast SSD, regular HDD, etc.), and it automatically gets it for you — no manual setup needed.
+
+Feature	Persistent Volume (Manual)	StorageClass (Dynamic)
+Size	Must be specified in advance and is fixed.	Size is specified in the PVC, not the StorageClass.
+Provisioning	You manually create the volume with a fixed size.	Kubernetes auto-creates the volume with the requested size.
+Flexibility	Not scalable unless you manually resize or recreate.	More flexible — you can request any size in the PVC.
+Limitations	Bound by the size you define in the PV.	Bound by cloud provider limits, not Kubernetes.
+
+Example:-
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-ssd
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp3
+  fsType: ext4
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+
+PERSISTENT VOLUME CLAIM:-
+Think of a PVC like a storage request form. You say, “I need 5Gi of storage that I can read and write,” and Kubernetes finds a matching PersistentVolume (PV) or creates one using a StorageClass.
+
+example:-
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: imaginglocationsearch-ui
+  namespace: digital-webapp-dev
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: digital
+  volumeName: digital-bhd1-wuw2-s3-scp-imagingimages001-pv
+  resources:
+    requests:
+      storage: 5Gi
+
+What Happens Step-by-Step:
+PVC is created with a reference to the existing StorageClass.
+Kubernetes uses the provisioner defined in the StorageClass (e.g., AWS EBS, GCP PD) to dynamically create a PersistentVolume (PV).
+The newly created PV is automatically bound to the PVC.
+The PVC status becomes "Bound", and it's ready to be used by a pod.
+When a pod mounts the PVC, it gets access to the dynamically provisioned storage.
+
+NOTE:-
+1. If you reference a storageClassName in your PVC and that StorageClass doesn't exist, the PVC will remain in a "Pending" state because Kubernetes doesn't know how to provision the storage.
+
+PVC is attached to the pod:-
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+    - name: app-container
+      image: nginx
+      volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: my-storage
+  volumes:
+    - name: my-storage
+      persistentVolumeClaim:
+        claimName: my-pvc
+
+SIDE CAR CONTAINER:-(Video:- https://www.youtube.com/watch?v=6bVlL9pwKn8&t=1149s)
+
+LABELS and ANNOTATIONS:-
+KUBE_PROXY in case of services
+
+
