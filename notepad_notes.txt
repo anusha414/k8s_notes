@@ -1284,7 +1284,7 @@ spec:
     volumeID: vol-0abcd1234efgh5678
     fsType: ext4
 
-STORAGE CLASS:-
+STORAGE CLASS:-(Video:- https://www.youtube.com/watch?v=OKBTg2hMnw4&t=182s)
 Storage class is usually suggested when you want to create the storage in cloud.
 If we use storage class it will dynamically create storage for you, you dont have to manually create the volumnes/storage
 
