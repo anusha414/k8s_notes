@@ -1383,6 +1383,11 @@ spec:
       - name: con2
         image: nginx
 
+Jobs:-
+
+1. ReplicaSets, Deployments, Statefulsets and Daemon sets will always make sure that specific number of pods are always up and running.
+2. what if u want to run the pods only once like taking DB backup and sending an mail or batch emails? The solution is Jobs
+
 SIDE CAR CONTAINER:-(Video:- https://www.youtube.com/watch?v=6bVlL9pwKn8&t=1149s)
 
 LABELS and ANNOTATIONS:-
