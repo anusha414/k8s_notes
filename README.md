@@ -21,3 +21,22 @@ Daemon Sets:-
 4. Lets assume if there is a pod with same labels as deployment selectors, deployment will not delete the pod or consider it as part of deployment replica because replicaset adds a new label pod-template-hash to the deployment pods.
 5. In case of DaemonSet if there is any Pod that is running with same label then it will delete the pod.
 6. DaemonSet is manily used for monitoring(resource information), logging and kubecproxy(default daemon set in kube-system namespace).
+
+eg:-
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dep1
+spec:
+  selector:
+    matchLabels:
+      type: frontend
+  template:
+    metadata:
+      name: pod2
+      labels:
+        type: frontend
+    spec:
+      containers:
+      - name: con2
+        image: nginx
