@@ -1387,6 +1387,31 @@ Jobs:-
 
 1. ReplicaSets, Deployments, Statefulsets and Daemon sets will always make sure that specific number of pods are always up and running.
 2. what if u want to run the pods only once like taking DB backup and sending an mail or batch emails? The solution is Jobs
+3. doubt:- can i not set restatPolicy as "Onfao;ure" in deployment so that the pods will be restarted only if there is failure?, No, because the Deployment doesnot support the restartPolicy as "OnFailure".
+4. Deployments manage long‑running workloads that should always keep running. Any other value (OnFailure or Never) is rejected.
+5. Jobs/CronJobs must always have restartPolicy as either "Onfailure" or "Never" as manadatory parameter
+
+example:-
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job1
+spec:
+  backoffLimit: 3---------------->max number of times pod will be restarted if there is an error before reporting to status
+  completions: 2-----------------> 2 pods will be created
+  activeDeadlineSeconds: 59--------> amount of time taken to complete the pod, it should not exceed more than thos
+  parallelism: 2------------------->number of pods to be excuted in parellel
+  template:
+    metadata:
+      name: pod
+      labels:
+        type: frontend
+    spec:
+      restartPolicy: OnFailure------------------>mandatory for jobs and cronjonbs
+      containers:
+      - name: con1
+        image: alpine
+        command: ["sh", "-c", "echo 'hello world'"]
 
 SIDE CAR CONTAINER:-(Video:- https://www.youtube.com/watch?v=6bVlL9pwKn8&t=1149s)
 
