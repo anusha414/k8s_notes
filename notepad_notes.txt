@@ -1259,6 +1259,9 @@ spec:
           name: task-pv-storage
     nodeName: master:- where this pv exists, it is mandatory when u create the PV on the nodes/local in multi-node cluster, so the pods must be deployed on that nodes only.
 
+NOTEs:-
+PVC will be in pending state unless and untill it will attached to pods. 
+
 Drawbacks of HostPath:-
 The data is stored on the disk of one node (e.g., /mnt/data on Node A).
 If the pod using that volume is scheduled on Node A, it works fine.
