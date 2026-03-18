@@ -69,18 +69,70 @@ spec:
 
 2. NodePort:-
 anyone who is inside the ur organisation can access the pods, but they may not be inside the k8s cluster.
-But they have access to the nodes which are part of k8s cluster.
+But they have access to the nodes which are part of k8s cluster because of kubeporxy
 30000–32767
 curl -L http://<IP>:<port> -v
 eg:- u r inside the organization, like u have access to AWS like the node(ec2 instance) where the pods is running, but not the EKS cluster.
-NOTE:- even if the pods are running on node1 and not on node2 of you r k8s cluster, someone from ur organization can still access the application from node2 IPaddress and the nodeport.
+NOTE:- even if the pods are running on node1 and not on node2 of your k8s cluster, someone from ur organization can still access the application from node2 IPaddress and the nodeport.
+1) Does NodePort create ClusterIP service? Yes, internally, every NodePort service also creates a ClusterIP, it does not create multiple services just that we can use the same service in multiple ways.
+2) OK my pod is running inside a node that is in the public subnet, then the pod is accessible via nodeport service by using nodes IP address and below security Group rule.
+Inbound Rule:
+Type: Custom TCP
+Port Range: 30000–32767
+Source: 0.0.0.0/0 (or your IP for security)
 
-3. Load Balancer:-
+example:-
+apiVersion: v1
+kind: Service
+metadata:
+  name: ser1
+spec:
+  type: NodePort
+  selector:
+    type: frontend
+  ports:
+  - port: 8080
+    targetPort: 80
+    nodePort: 32567---------->optional, k8s will assign a default one
+
+DrawBack:-
+If the Node in which the pods are running is in private subnet then the nodes will not be accessible from outside world. So, we use Load Balancer.
+
+3. Load Balancer:-(Video:- https://www.youtube.com/watch?v=syf_jLcqUOQ)
 the service is exposed to external world, unlike clusterIP and NodePort it will have a external IP assigned to it.
 Thi servicer will create a Nodeport and clusterIP by default.
 A public IPaddress will be created by controller from AWS and is assigned to the pods.
 whoever has access to public IPadress of load balancer can access the pods.
 Load balancer will work only for cloud platforms and not for local K8s clusters such as Minikube.
+1) whenever we create a loadbalancer service in k8s it provisions a load balancer in cloud that is type "classic"
+
+Internet User
+    ↓
+Cloud Load Balancer (Public IP)
+    ↓
+NodeIP : NodePort
+    ↓
+kube-proxy
+    ↓
+ClusterIP Service
+    ↓
+Pod (targetPort)
+
+example:- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: my-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+4. Headless service:-
 
 Ingress Controller:-
 
