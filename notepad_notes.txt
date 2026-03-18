@@ -47,7 +47,25 @@ If you create clusterIP service for ur pods, ur pods will still be accessible wi
 Pods in the same cluster can communication with eachother, but still outside world cannot access these service pods.
 It provide discovery and load balancing
 eg:- Someone who has access to EKS cluster and all the pods/services can access this service.
-curl http://<service-name>.<namespace>.svc.cluster.local:<port>
+curl http://<service-name>.<namespace>.svc.cluster.local:<port>------->full DNS
+
+NOTE:- If you want it to be accessible from outside world then you have to do port forwarding.
+kubectl port-forward svc/b<service-name> <local-port on machine>:<port of the k8s service>
+
+eg:- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: ser1
+  labels:
+    type: frontend
+spec:
+  type: ClusterIP
+  selector:
+    type: frontend
+  ports:
+  - port: 8080
+    targetPort: 80---------------------->optional if targetport is same as Port
 
 2. NodePort:-
 anyone who is inside the ur organisation can access the pods, but they may not be inside the k8s cluster.
