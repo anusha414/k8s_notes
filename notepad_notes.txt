@@ -1486,6 +1486,69 @@ spec:
         image: alpine
         command: ["sh", "-c", "echo 'hello world'"]
 
+SSL/ TLS how they work:-(Video:- https://www.youtube.com/watch?v=njT5ECuwCTo)
+
+1. User who wantes to send a request to the server(web server or application server).
+2. The user is trying to get some data from the server via internet using GET request over HTTP proctocol.
+3. The servcer asks for User authentication details.
+4. user send the credentials to the server.
+5. Sever authenticates the details and send the requested data back to the user.
+
+Issue with Above:- Let us assume there is a hacker over the internet who is monitoring or looking for unsecured connection which means that crdetails are being shared over the internet, In that acse the hacker will get the details of the user and get the user data from server, this is very dangerous if the credentials are related to some confidential information.
+
+Solution:- before sending the details to the server encrypt them using a key, ans the key must be ssent to the server to decrypt the credentails. This type of encryption is called symmetric encryption.
+
+Issue with Above:- hacker on the internet can still get the key and decrypt your crdentials again security is compromised.
+
+Assymetric Encryption:-
+
+Task:- ssh into the server without password
+
+1. generate a key pair(private key and public key) using ssh-keygen
+2. Place the the public key in the server inside the .ssh/authorized_keys.
+3. Create ssh connection using private key
+
+Task Implement the same from client to server:-
+
+1. Server has create a keypairr(Private and public) using a openssl utility.
+2. Private key will retained by the server and public key will be sent to the user.
+3. User will encrypt the symmetric key using the public key shared by the server.
+4. server will use the private key that is already generated to decrypt the symmetric key.
+5. Now even if the hacker tries to decrypt the user data he will need a server private key, without server private key he cannot do anything, this is a secure connection.
+
+Issue with Above:- It is still not secure there ways hacker can still get ur details.
+1. hacker will create a dummy bank website, now the user will send the GET request to the hacker.
+2. Hacker will send his own public key to the user to encrypt the data.
+3. User will send the encrypted data to the hacker and hacker will decrypt using his own private key.
+4. hacker will send a GET request to the server and get the actual server public key.
+5. He will then encrypt the user data using server publicg key and send to server.
+6. Sever will decrypt it and data is sent back to Hacker.
+Here in above User did not identify the hacker and server dod not identify the hacker.
+
+Solution:- what if there are ways in which user can identify if he is getting the key from the right server.
+It can be done by using certificates.
+
+1. User will send get request to the server, the server will send a certificate to the user.
+2. User browsers can validate whether the certificate was issued to the specific domain itself or not.
+3. This connect is over HTTPS.
+4. Server creates a Certificate Signing Request(CSR) sent to Certificate Authority(digicert)
+5. CA validates the request and signs the request and sends it back to server.
+
+TLS stands for Transport Layer Security.
+It is a security protocol that protects data sent over the internet by encrypting it.
+How TLS Works (Simple Version)
+1. When your browser connects to a website:
+2. Your browser asks the server for its TLS certificate.
+3. Server sends certificate + public key.
+4. Browser checks if the certificate is:
+valid
+trusted
+not expired
+5. Browser creates a temporary symmetric key.
+6. Browser encrypts it using server’s public key.
+7. Server decrypts it using private key.
+Now both share the same symmetric key and use it to encrypt all data.
+
 SIDE CAR CONTAINER:-(Video:- https://www.youtube.com/watch?v=6bVlL9pwKn8&t=1149s)
 
 LABELS and ANNOTATIONS:-
