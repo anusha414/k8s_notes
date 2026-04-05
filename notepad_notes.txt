@@ -825,12 +825,33 @@ spec:
             values:
             - ssd
 
+Container Restarts:-
+
+👉 Containers are restarted only if they have been started at least once and then stop/fail
+So:
+• ✅ Started → crashed → restart happens
+• ❌ Never started (e.g., ImagePullBackOff) → no restart
+
+1. crashloopbackoff
+2. OOM
+3. Liveness probe failed
+4. manual kill the container using kill -9
+
+NOTE:- Even if restarting the cobtainers does not fix the issue.
+Kubernetes will not notify the user.
+You should either check manually using kubectl get pods or use monitoring tools like prometheus or grafana.
+
+NOTE:-
+👉 If readiness probe fails:
+• ❌ Container is NOT restarted
+• ✅ Only removed from traffic
 
 HEALTH CHECKS:-
 Probes:-
 monitoring/inspecting the system and taking necessary actions.
 
 Health Probes:- they will monitor/inspect the pods and make sure they are running fine without any issues.
+these are periodic checks performed by kubelet on containeers.
 
 
 1. Liveness Probe:-
@@ -884,17 +905,37 @@ Low timeoutSeconds	                App takes longer to respond	                 
 Aggressive failureThreshold	         Fails too quickly	                                       Increase to 5 or more
 App is actually crashing	                Bug, missing config, or resource limits	          Check logs with kubectl logs
 
+Fails:- container is restarted
+Not configured:- application is stuck forever, requires human intevention to restart it
 
 2. Readiness Probe:-
-This will make sure that the application is running and is ready to accept the traffic from the user only then it will be added to the load balancer or else the end user will get errors.
+This will make sure that the application is running and is ready to accept the traffic from the user only then it will be added to the load balancer or else the end user will get errors. eg:- DB connection
+
+fails:- the pod is removed from the service endpoints, traffic is stopped, and pod is marked as not ready(no traffic).
+Not configured:- Immediately traffic is sent to the pods, users will see 500 error and db connection failures
+
+🔍 What exactly happens internally?
+1. kubelet runs readiness probe
+2. If it fails:
+• Pod stays running
+• BUT removed from Service endpoints
+3. If it passes:
+• Pod added back to Service
+👉 No restart happens (key difference from liveness)
 
 3. Startup probe:-
 for applications/pods that take a lot of time to start.
+while this is running liveness/readiness probes are disabled.
+🔁 Flow comparison
+❌ Without startup probe
+Slow start → liveness fails → restart → loop
+✅ With startup probe
+Slow start → wait → success → normal flow
 
 3 ways to Probe in k8s:-
-1. HTTP
-2. Command
-3. TCP
+1. HTTP:- calls API end point
+2. Command:- runs command inside container
+3. TCP:- checks if port is open
 
 IMPORTANT POINTS 1:-
 When does the k8s delete the old pods and create new pods.
