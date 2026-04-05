@@ -932,6 +932,36 @@ Slow start → liveness fails → restart → loop
 ✅ With startup probe
 Slow start → wait → success → normal flow
 
+startupProbe:
+ httpGet:
+   path: /health
+   port: 80
+ periodSeconds: 5
+ failureThreshold: 6
+
+What happens:
+1. Container starts
+2. Startup probe begins checking
+3. App still not ready → probe fails
+4. Kubernetes retries (up to 6 times)
+5. If still failing ❌
+👉 Then:
+• Container is killed
+• 🔁 Container is restarted
+
+fails:- container will be restarted
+
+NOTE:-
+🔁 Actual flow
+1. Pod scheduled
+2. Image pulled
+3. Container created
+4. Container enters Running state
+👉 Now:
+• ✅ Startup probe starts (if defined)
+• OR
+• ✅ Readiness & Liveness start (based on delays)
+
 3 ways to Probe in k8s:-
 1. HTTP:- calls API end point
 2. Command:- runs command inside container
