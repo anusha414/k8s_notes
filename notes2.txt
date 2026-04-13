@@ -1,4 +1,4 @@
-INGRESS:-
+INGRESS:-(Video:- https://www.youtube.com/watch?v=kf3UjITS91M)
 
 Disadvantages of Load Balancer:-
 1. dependent on cloud provider.
@@ -31,4 +31,48 @@ Without Ingress:
 With Ingress:
 • One entry point
 • Routes traffic to multiple services
+
+NOTE:- User → Load Balancer → Ingress Controller → Service → Pods
+
+Step 1: 🌐 User → Load Balancer
+• Cloud LB receives request
+Step 2: 🚦 Load Balancer → Ingress Controller
+• Forwards traffic into cluster
+Step 3: 🧠 Ingress Controller checks rules
+• Reads Ingress Resource
+• Sees:
+• /api → api-service
+Step 4: 🔀 Routes to Service
+• Sends request to correct service
+Step 5: ⚙️ Service → Pod
+• Load balances across pods
+Step 6: ✅ Response goes back same path
+
+NOTe:- Ingress resource is useless, unless and until we have ingress controller deployed in our k8s cluster.
+
+Step 1:- Deploy the ingress controller(basically developed by load balancers companies) using helm, which ingress-controller to use will be usually decided by the devops, devs and architects and other teams. It is a single time installation to your cluster.
+NOTE:- A Loadbalancer service type is automatically created when we deploy ingress controller, when k8s sees this loadbalancer service it asks the Cloud provider to create load balancer.
+
+Step 2:- Create a deployment and deploy it.
+Step 3:- create a clusterIP service and deploy it
+Step 4:- create a ingress service and deploy it
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+ name: my-app-ingress
+spec:
+ ingressClassName: nginx
+ rules:
+ - host: myapp.com
+   http:
+     paths:
+     - path: /
+       pathType: Prefix
+       backend:
+         service:
+           name: my-app-service
+           port:
+             number: 80
+NOTE:- ingressClassName is mandatory because we are telling the cluster to use the nginx ingress controller for routing when there are multiple imgress controllers in the namespaces.
+
 
