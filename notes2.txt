@@ -1,0 +1,34 @@
+INGRESS:-
+
+Disadvantages of Load Balancer:-
+1. dependent on cloud provider.
+2. It is very expensive
+2. Security:- we have to use what is provided
+
+why ingress?
+
+what is ingress?
+🧠 In Layman Terms
+Think of your house 🏠:
+• You have many rooms inside (like your app services)
+• But people from outside can’t directly walk into any room
+• They enter through the main gate or door
+👉 That main door = Ingress
+So:
+• Outside users (internet) → come to one entry point
+• That entry point decides which room (service) they should go to
+Example:
+If someone visits:
+• myapp.com/login → go to login service
+• myapp.com/products → go to product service
+👉 One door, smart routing inside
+
+1. Ingress is incoming traffic to ur application.
+2. Ingress is an API object that manages external HTTP/HTTPS access to services inside a cluster.
+🔹 Problem it solves
+Without Ingress:
+• Each service needs its own LoadBalancer (costly + messy)
+With Ingress:
+• One entry point
+• Routes traffic to multiple services
+
