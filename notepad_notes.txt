@@ -80,6 +80,7 @@ Inbound Rule:
 Type: Custom TCP
 Port Range: 30000–32767
 Source: 0.0.0.0/0 (or your IP for security)
+3) If my pod is running inside a node that is in private subnet, outside world cannot access it, only the IAM user who has EC2access can ssh into the node and do localhost:<nodeport>
 
 example:-
 apiVersion: v1
