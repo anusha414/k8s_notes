@@ -31,7 +31,7 @@ db-0 not ready yet ❌
 NOTE:-
 1. When should we go for Stateful sets:- If the database itself runs inside the pod, then we should go for ss.
 3. Using deployments with shared disk is not suggested for database related pods because data corruption will happen when multiple pods write to same storage.
-4. When you are using managed database services like Amazon RDS, Azure SQL Databases, then you dont have to use stateful sets because the database is not running inside the kubernetes.
+4. When you are using managed database services like Amazon RDS, Azure SQL Databases, then you dont have to use stateful sets because the database is not running inside the kubernetes and filelocking is not supported
 5. Only your app backend apis,microservices run in k8s, these just connect db via connection string and dont store data locally.
 
 
