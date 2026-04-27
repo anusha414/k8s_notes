@@ -16,6 +16,17 @@ Stateful sets:-(Video:- https://www.youtube.com/watch?v=qLL5wf0ShZY&t=570s)
 4. in SS, the pods will created sequentially in the same order like app-0, app-1 and deleted in the same order.
 5. For SS create a headless service, the service with clusterIP as none is headless service it has no internal n externalip.
 6. For deployments service is optional but for SS headless service is mandatory.
+7. 🔴 Why NOT parallel like Deployment?
+Because in stateful apps, order matters.
+🔹 1. 🧩 Dependency between Pods
+Example (database):
+db-0 = Primary
+db-1 = Replica (needs primary to exist)
+👉 If created in parallel:
+db-1 starts
+Tries to connect to db-0
+db-0 not ready yet ❌
+💥 Replication fails
 
 NOTE:-
 1. When should we go for Stateful sets:- If the database itself runs inside the pod, then we should go for ss.
