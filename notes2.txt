@@ -81,4 +81,30 @@ spec:
              number: 80
 NOTE:- ingressClassName is mandatory because we are telling the cluster to use the nginx ingress controller for routing when there are multiple imgress controllers in the namespaces.
 
+K8S TROUBLESHOOTING:-
+
+IMGPULLBACKOFF:-
+1. Two cases where you will face this error:-
+ 1.1 Invalid image name, non existent image
+ 1.2:- trying to pull the images from private registry
+2. The first error message you see is not "imgpullbackoff", it is "errorimgpull". what k8s does is when it notices errorimagepull, it will wait for sometime like 10sec and try to pull the image because sometimes there might be network issues when pulling the image, so it will try again in a incremental way, next time it will wait for 20sec and try again and it keeps trying. Now the "errimgpull" is converted to "imgpullbackoff"
+3. To resolve error 1.1 make sure you provide correct image by checking the commands such as describe, events.
+4. To resolve error1.2 you must create "imagepullsecret" that contains the private registry credentials.
+5. In eks, to resolve 1.2 If the image is being pulled by a kubelet that is on a node that is in private subnet, then "impullsecrets" will not be required, it will need 2 permissions:-
+ 5.1 the node IAM role must have roles/permission to pull the image from ECR
+ 5.2 the node must have internet access to pull the image but as it is in VPC private subnet we can create VPC endpoints.
+
+NOTE:-
+Why IRSA cannot be used for image pulls
+The key reason is Container images are pulled before the Pod starts, but IRSA only works after the Pod is running.
+
+CRASHLOOPBACKOFF:-
+
+1. A pod gets scheduled onto a node by the scheduler, kubelete in the node will pull the image and update the status of the pod from "pending" to "container creating".
+2. From the "container creating" status the pod can move to either "running" or "error" status.
+3. From "running/error" status it can move to "crashed" state and k8s will try to restart the pod in an incremental limit, it will again go to "container creation" and this is a loop
+
+Main reasons for crashloopbackoff error:-
+1. providing wrong command line arguments eg:- passing app1.py instead of app.py in "CMD python3 app.py"
+
 
