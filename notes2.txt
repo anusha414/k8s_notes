@@ -117,6 +117,15 @@ I) Rolling update:-
 2. Using this strategy it is possible to achieve nearly zero downtime.
 3. Let us assume we have an application with version v1 and 4 replicas running, and we want to update the version to v2. In rolling update the maxunavailable is 25% and maxsurger is 25%, which meand, when we update the version from v1 to v2 in th deployment manifest, 25% of 4 replicas which is 1 replica of v2 will be created first and then 1 replica of v1 will be deleted.
 4. It is very important to specify readiness probe in the manifest so that it will make the pod is ready to accept the traffic before deleting a v1 pod.
+5. Kubernetes uses the readiness probe to decide when a new Pod is safe to receive traffic and when an old Pod can stop receiving traffic during a rolling update.
+
+For a Deployment with strategy RollingUpdate:
+New Pod (new version) is created
+Pod transitions to Running
+Readiness probe is checked
+✅ If Ready → Pod is added to Service endpoints (gets traffic)
+❌ If NotReady → Pod receives no traffic
+Old Pods are terminated only after enough new Pods are Ready
 
 II) Canary Deployment:-
 why do we need canary deployment when rolling update has almost zero downtime?
@@ -124,6 +133,8 @@ why do we need canary deployment when rolling update has almost zero downtime?
 2. the new version v2 might work fine in all these envionemnts but face some issues because the database in prod  or infra is different from the dev,qa databases.
 3. In canary deployment what we will do is we will release v2 for specific set of users means in our cluster 90% pods belong to v1 and 10% of pods belong to v2 and we will tell the load balancer to send 90% of traffic to v1 pods and 10% of traffic to v2 pods.
 4. In rolling update this control of traffic is not possible, we cannot test real time prod users. In case of canary deployment we can test in realtime prod env by sending set if users to new version, so in case of any issues we can either fix it or rollback to previous version.
+
+
 
 III)Blue/Green deployment:-
 1. The safest and most costliest deployment strategy.
