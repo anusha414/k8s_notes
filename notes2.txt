@@ -111,6 +111,7 @@ DEPLOYMENT STRATAGIES:-(Video:- https://www.youtube.com/watch?v=0QhUhrWGB9k&t=13
 
 why do we need deployment strategy:-
 If you want to deploy a new version of an already running application with less or zero downtime.
+Disadvantages of downtime are revenue loss and loss of cutomers due to bad user experience
 
 I) Rolling update:-
 1. This is default deployment strategy that is provided by k8s.
