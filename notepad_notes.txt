@@ -898,6 +898,12 @@ If the app responds with a status code 200–399, it’s healthy ✅.
 If it times out, returns 500, or is unreachable, it’s unhealthy ❌.
 After 3 consecutive failures, Kubernetes restarts the container.
 
+Does kubelet keep restarting the pod indefinitely if the liveness probe keeps failing?
+✅ Yes, kubelet will keep restarting the container indefinitely if the liveness probe keeps failing.
+❌ Kubernetes does NOT automatically notify DevOps.
+✅ Notification happens via Events + Monitoring/Alerting systems you must set up.
+✅ Kubernetes prevents “hot loops” using exponential backoff (CrashLoopBackOff).
+
 Here are a few common causes:
 
 Cause	                                           Description	                                                        Fix
@@ -920,6 +926,7 @@ Not configured:- Immediately traffic is sent to the pods, users will see 500 err
 2. If it fails:
 • Pod stays running
 • BUT removed from Service endpoints
+kubelet keeps checking readiness periodically
 3. If it passes:
 • Pod added back to Service
 👉 No restart happens (key difference from liveness)
