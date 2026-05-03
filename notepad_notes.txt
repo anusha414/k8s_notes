@@ -921,6 +921,17 @@ This will make sure that the application is running and is ready to accept the t
 fails:- the pod is removed from the service endpoints, traffic is stopped, and pod is marked as not ready(no traffic).
 Not configured:- Immediately traffic is sent to the pods, users will see 500 error and db connection failures
 
+readinessProbe:
+  httpGet:
+    host: nginx-backend-svc
+    path: /
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+
 🔍 What exactly happens internally?
 1. kubelet runs readiness probe
 2. If it fails:
@@ -977,8 +988,9 @@ NOTE:-
 
 NOTE:-
 1. If a pod contains multiple containers all the containers will be started parallely.
-2. If one of the containers fails due to container issue then te pods status will not be running.
-3. If the liveness probes of one of the containers failes, failed container will be restarted, pod status will still be running
+2. If one of the containers fails due to container issue then te pods status will not be running and pod status also will not be ready.
+3. If the liveness probes of one of the containers failes, failed container will be restarted, pod status will still be running, pods status also will be ready for 2/2.
+4. In logs u usually see "startup faild" that doesnot mean u reached the threshold, k8s logs every failed check and only when the thrshold is reached it restarted the container.
 
 IMPORTANT POINTS 1:-
 When does the k8s delete the old pods and create new pods.
