@@ -975,6 +975,11 @@ NOTE:-
 2. Command:- runs command inside container
 3. TCP:- checks if port is open
 
+NOTE:-
+1. If a pod contains multiple containers all the containers will be started parallely.
+2. If one of the containers fails due to container issue then te pods status will not be running.
+3. If the liveness probes of one of the containers failes, failed container will be restarted, pod status will still be running
+
 IMPORTANT POINTS 1:-
 When does the k8s delete the old pods and create new pods.
 1. Pod Template Change (e.g., image update)
