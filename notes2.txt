@@ -3,7 +3,18 @@ INGRESS:-(Video:- https://www.youtube.com/watch?v=kf3UjITS91M)
 Disadvantages of Load Balancer:-
 1. dependent on cloud provider.
 2. It is very expensive
-2. Security:- we have to use what is provided
+3. Security:- we have to use what is provided
+4. they do not support with path based routing.
+
+with LB
+auth.amazon.com
+product.amazon.com
+cart.amazon.com
+
+But what we need 
+amazon.com/login
+amazon.com/products
+amazon.com/cart
 
 why ingress?
 
