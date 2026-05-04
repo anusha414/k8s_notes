@@ -117,6 +117,8 @@ CRASHLOOPBACKOFF:-
 
 Main reasons for crashloopbackoff error:-
 1. providing wrong command line arguments eg:- passing app1.py instead of app.py in "CMD python3 app.py"
+2. liveness probe has failed then container will go into crashloopbackoff.
+3. Out of memory error-------->reach out to developer to increase the limits you should not do it by yourself, repeated OOM error will result in crashloopbackoff.
 
 DEPLOYMENT STRATAGIES:-(Video:- https://www.youtube.com/watch?v=0QhUhrWGB9k&t=131s)
 
