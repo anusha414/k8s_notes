@@ -92,6 +92,9 @@ spec:
              number: 80
 NOTE:- ingressClassName is mandatory because we are telling the cluster to use the nginx ingress controller for routing when there are multiple imgress controllers in the namespaces.
 
+NOTE:-
+1. if a Load balancer has a security group, then even the node on which the pod is running must have security groups to allow it
+
 K8S TROUBLESHOOTING:-
 
 IMGPULLBACKOFF:-
