@@ -90,6 +90,8 @@ spec:
            name: my-app-service
            port:
              number: 80
+step5:- change lodablancer service type to nodeport
+step6:- curl -H "Host: myapp.com" http://localhost:31653->Nodeport
 NOTE:- ingressClassName is mandatory because we are telling the cluster to use the nginx ingress controller for routing when there are multiple imgress controllers in the namespaces.
 
 NOTE:-
@@ -151,7 +153,32 @@ why do we need canary deployment when rolling update has almost zero downtime?
 3. In canary deployment what we will do is we will release v2 for specific set of users means in our cluster 90% pods belong to v1 and 10% of pods belong to v2 and we will tell the load balancer to send 90% of traffic to v1 pods and 10% of traffic to v2 pods.
 4. In rolling update this control of traffic is not possible, we cannot test real time prod users. In case of canary deployment we can test in realtime prod env by sending set if users to new version, so in case of any issues we can either fix it or rollback to previous version.
 
+Example:- create de, ser n ingress for v1 and create dep, service and ingress for v1
+ingress for v2:-
 
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing1
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "20"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: myapp.com
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: ser1
+              port:
+                number: 8080
+
+To check if traffic is being sent properly:-
+for i in {1..20}; do   curl -H "Host: myapp.com" http://localhost:31653; done
 
 III)Blue/Green deployment:-
 1. The safest and most costliest deployment strategy.
