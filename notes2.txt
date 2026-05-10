@@ -216,5 +216,22 @@ It manages the lifecycle of CR.
 Deployment controller is responsible for creating replica set and making sure the pods are created.
 In the same way we will need a custom controller to watch and manage your custom resource.
 
+DNS(Domain Name System):-
+1. Domain names are google.com, facebook.com.
+2. When you type the donaim names in your browser, it sends a request to DNS server and fetches the IP address of the Domain name and then request is ent to that IPaddress by your browser.
+3. DNS resolution:- converting the Domain Names into IPaddresses.
+
+Drawbacks of DNS server:-
+1. When there are billion of requests a single DNs server will not be able to support everything and it might go down. The solution is multiple copies of Domain Name servers called Route Name servers.
+2. Even though if is able to support, it takes few seconds to send the request to DNS server and fetch the IPaddress.
+The solution is DNS caching.
+
+User browser chaches the IPaddress of the Domain Name after it made it first call to the Domain Name server to fetch IPaddress.
+nslookup <Domain-name>:- displays the IPaddress of the Domain Name.
+
+Root Name servers:-
+There are only 13 hardcoded server names, but internally there are more servers.
+www.google.com:- .com is a top level domain
+
 
 
