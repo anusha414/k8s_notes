@@ -183,4 +183,38 @@ for i in {1..20}; do   curl -H "Host: myapp.com" http://localhost:31653; done
 III)Blue/Green deployment:-
 1. The safest and most costliest deployment strategy.
 
+CUSTOM RESOURCE/CUSTOM RESOURCE DEFINITION:-(Video:- https://www.youtube.com/watch?v=alGEPSQxbLg&list=PLdpzxOOAlwvJdsW6A0jCz_3VaANuFMLpc&index=13)
+Video:- https://www.youtube.com/watch?v=3huz7lRzUQo&list=PLl4APkPHzsUUOkOv3i62UidrLmSB8DcGC&index=51
+sample lab:- https://github.com/piyushsachdeva/CKA-2024/tree/main/Resources/Day49-CustomResources
+
+Why do we need CR/CRD:-
+1. k8s cluster comes with some default or native k8s resources like deployment, service, configmaps and etc.
+2. If your k8s cluster default resources doesnot support the functionality that is required for your application, then to extend the capabilities of k8s or to extend API server in k8s to support creation of custom functionalities we use CR/CRD.
+for eg:- argoCD, advanced security capabilities.
+NOTe:- CNCF is all about the custom k8s controllers
+
+There are 2 actors, devops and user
+1. Deploying the custom Resource definition and custom controller to the k8s is the job of devops.
+2. user/devops can create the custom resource
+
+There are many services/features which provide additional functionalities to k8s.
+K8s has already accomodated logic to the native resources and adding logic to these 100s and 1000s of other functionalities/features is hectic to k8s team/developers.
+To support the additional functionality we will extend the capabilities of API.
+
+To extend capabilities of API there are 3 resources, CR, CRB, custom controller.
+
+CRD:-
+If you want k8s to support additional functionality such as argocd, then argocd team must develop a CRD(defining a new type of api).
+CRD is nothing but a template definition that will be used by k8s to extend the capabilities and validate the k8s resource created.
+Even for the native resources like deployment we have CRD that is already present in the k8s API server.
+
+CR:-
+This is the yaml submitted by user to create resource in k8s.
+
+Custom controller:-
+It manages the lifecycle of CR.
+Deployment controller is responsible for creating replica set and making sure the pods are created.
+In the same way we will need a custom controller to watch and manage your custom resource.
+
+
 
