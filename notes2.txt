@@ -154,7 +154,9 @@ why do we need canary deployment when rolling update has almost zero downtime?
 4. In rolling update this control of traffic is not possible, we cannot test real time prod users. In case of canary deployment we can test in realtime prod env by sending set if users to new version, so in case of any issues we can either fix it or rollback to previous version.
 
 Example:- create de, ser n ingress for v1 and create dep, service and ingress for v1
+A canary ingress works only when there is a NORMAL (stable) ingress already present with the same host + path but without canary annotations.
 ingress for v2:-
+
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -179,6 +181,14 @@ spec:
 
 To check if traffic is being sent properly:-
 for i in {1..20}; do   curl -H "Host: myapp.com" http://localhost:31653; done
+
+NOTE:-
+nginx.ingress.kubernetes.io/canary: "true"
+✅ Tells NGINX:
+“This ingress is NOT the main one – it is a canary”
+Without this:
+Your ingress would conflict with the main ingress
+API server would block it (duplicate host + path)
 
 III)Blue/Green deployment:-
 1. The safest and most costliest deployment strategy.
