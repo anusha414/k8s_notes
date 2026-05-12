@@ -283,3 +283,4 @@ So Kubernetes:
 ✅ Ensures consistent DNS behavior across all pods
 6. /etc/hosts answers “what is this name?”
 /etc/resolv.conf answers “who should I ask?”
+7. coreDNS does not create DNS records for pods as they are epimeral in nature
