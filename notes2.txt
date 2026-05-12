@@ -243,5 +243,43 @@ Root Name servers:-
 There are only 13 hardcoded server names, but internally there are more servers.
 www.google.com:- .com is a top level domain
 
+COREDNS:-(Video:-https://www.youtube.com/watch?v=VcWpZoRAQXE&t=1s)
+Notes:- https://notes.kodekloud.com/docs/Certified-Kubernetes-Administrator-CKA/Networking/CoreDNS-in-Kubernetes/page
+Why do we need CoreDNS?
+we usually create service to access pods via service as pods IPaddresses are not static.
+If we try to access the service by the service name we will get could not resolve host but when we try to access the service with IPaddress we are able to access it successfully.
+The problem here DNS is not able to resolve service name to its IPaddress. There is some issue with your DNS.
 
+In k8s, To be able to resolve the service name into its IPaddress, coreDNS will be required, its pods must be running.
+CoreDNS is a DNS server provides the funtionality of domain name resolution of service to its IPname.
 
+NOTE:-
+1. Id podA wants to communicate with podB using IPaddress it is possible without any extra/human interventions, The cluster network (CNI) ensures direct IP-to-IP routing
+2. If podA wants to communicate with podB using the pod name
+curl http://podB
+Now the system must resolve podB to an IP, so it checks (in order):
+/etc/hosts
+DNS (CoreDNS in Kubernetes)
+3. In Kubernetes:
+/etc/hosts inside a pod is auto-generated
+It usually contains:
+localhost
+The pod’s own hostname
+It does NOT contain other pods’ IPs
+4. Instead of manually editing etc/hosts for each and every pod, Kubernetes deploys a central DNS server. Each pod is pre-configured via its /etc/resolv.conf file to use this centralized server (typically at 10.96.0.10), which automatically updates DNS records for new pods and services by communicating with APIserver
+cat /etc/resolv.conf:- displays the IP address of the DNS server.
+o/p:-
+nameserver 10.96.0.10
+5. What is /etc/resolv.conf?
+❓ “When I see a name like google.com or myservice, who should I ask for the IP address?”
+📄 /etc/resolv.conf is the answer to that question.
+It tells the system:
+Which DNS server to ask
+Which domain to assume if a name is incomplete
+In what order to search names
+So Kubernetes:
+✅ Auto-generates /etc/resolv.conf
+✅ Injects CoreDNS service IP
+✅ Ensures consistent DNS behavior across all pods
+6. /etc/hosts answers “what is this name?”
+/etc/resolv.conf answers “who should I ask?”
