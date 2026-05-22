@@ -153,7 +153,7 @@ why do we need canary deployment when rolling update has almost zero downtime?
 3. In canary deployment what we will do is we will release v2 for specific set of users means in our cluster 90% pods belong to v1 and 10% of pods belong to v2 and we will tell the load balancer to send 90% of traffic to v1 pods and 10% of traffic to v2 pods.
 4. In rolling update this control of traffic is not possible, we cannot test real time prod users. In case of canary deployment we can test in realtime prod env by sending set if users to new version, so in case of any issues we can either fix it or rollback to previous version.
 
-Example:- create de, ser n ingress for v1 and create dep, service and ingress for v1
+Example:- create dep, ser n ingress for v1 and create dep, service and ingress for v1
 A canary ingress works only when there is a NORMAL (stable) ingress already present with the same host + path but without canary annotations.
 ingress for v2:-
 
@@ -192,6 +192,10 @@ API server would block it (duplicate host + path)
 
 III)Blue/Green deployment:-
 1. The safest and most costliest deployment strategy.
+2. Let us assume we have a deployment with version v1 and replicas 4, it also has a service s1. This is the Blue
+3. We have a deployment with version v2 and replicas 4, it has service s2. This is Green
+4. We have a ingress resource which points to service2 and the load balancer points to the ingress resource, If there is any issue with v2 we will update the ingress resource to point to service s1.
+5. Most company go for canary deployment because Blue/Green deployment is costly.
 
 CUSTOM RESOURCE/CUSTOM RESOURCE DEFINITION:-(Video:- https://www.youtube.com/watch?v=alGEPSQxbLg&list=PLdpzxOOAlwvJdsW6A0jCz_3VaANuFMLpc&index=13)
 Video:- https://www.youtube.com/watch?v=3huz7lRzUQo&list=PLl4APkPHzsUUOkOv3i62UidrLmSB8DcGC&index=51
