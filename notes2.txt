@@ -197,6 +197,10 @@ III)Blue/Green deployment:-
 4. We have a ingress resource which points to service2 and the load balancer points to the ingress resource, If there is any issue with v2 we will update the ingress resource to point to service s1.
 5. Most company go for canary deployment because Blue/Green deployment is costly.
 
+✅ Final Clarity Statement
+✅ In rolling update → new pods start receiving real traffic immediately once ready, and also to create new pods it will take time if there is any issue
+✅ In blue-green → green pods never receive real traffic until you explicitly switch, as the pods are already available switching does not take much time
+
 CUSTOM RESOURCE/CUSTOM RESOURCE DEFINITION:-(Video:- https://www.youtube.com/watch?v=alGEPSQxbLg&list=PLdpzxOOAlwvJdsW6A0jCz_3VaANuFMLpc&index=13)
 Video:- https://www.youtube.com/watch?v=3huz7lRzUQo&list=PLl4APkPHzsUUOkOv3i62UidrLmSB8DcGC&index=51
 sample lab:- https://github.com/piyushsachdeva/CKA-2024/tree/main/Resources/Day49-CustomResources
