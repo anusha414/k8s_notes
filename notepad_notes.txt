@@ -665,10 +665,41 @@ my-app/
         └── patch.yaml
 
 1. check on Kustomize Transformers:- https://github.com/kubernetes-sigs/kustomize/blob/master/examples/transformerconfigs/images/README.md
+when you have objects that are common across multiple manifests yaml that is when u use transformers
+
 2. Patches:- JSON patching and Strategic Merge patching
+When u want to update a specific object for a single manifest that is when u go for patching
+
+JSON patching:- Uses explicit operations (add, replace, remove) with exact paths.
+example:- 
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Deployment
+      name: app
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 4
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: nginx:1.25
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: ENV
+            value: prod
+Strategic Merge patching:- Merges YAML based on structure (keys like name), keeping unspecified fields intact.
+
 3. Inline and file based patching
 4. Components
+base contains configurations that are common to all environments.
+and Individual overlay directory contains configurations that are common to specific environment.
+What if there are configurations that are common to 2 environments and not all the 3? components
 5. generators
+Generators in Kustomize are used to dynamically create Kubernetes resources like ConfigMaps or Secrets from literals, files, or env files—so you don’t have to write them manually
 Video link:- https://www.youtube.com/watch?v=zNqibPchN18&list=PLamZM2ehvxwygLli3RHkB_sRnvlcGEIO7
 
 Service Account(SA):- Video:- https://www.youtube.com/watch?v=k2iCq7IlMKM&list=PLl4APkPHzsUUOkOv3i62UidrLmSB8DcGC&index=26
