@@ -626,10 +626,25 @@ It does not interact with k8s api server, it just locally validates it.
 
 Kustomize:-
 video:- https://www.youtube.com/watch?v=Ks0PMh70GTY
-1. kustomize is k8s native configuration management tool.
+1. kustomization.yaml is NOT a Kubernetes resource but istead It is interpreted by Kustomize (client-side tool)
+2. Kustomize is a tool used in Kubernetes to customize and manage YAML configuration files without modifying the original base files.
+3. kustomize is builtin with kubectl  we dont have to install it explicitly
+4. It only cares about:
+The presence of a file named kustomization.yaml
+The paths you reference inside it
 
-what is Kustomize:-
-1. kustomize is builtin with kubectl  we dont have to install it explicitly
+🚨 Problem Without Kustomize:-
+1. Duplicate YAML everywhere If you have environments like: dev, staging and prod
+2. drift between enviornments:- someone updates productions yaml but forgets dev yaml
+3. Hard maintainance:- changing one common thing means editing many files
+4. It will take care of order of deploying the manifests for eg:- deployment->service->ingress
+
+How to use kustomize:-
+kubectl version --short --client:- displays the kustomize version if the kubectl supports it
+option 1:- kubectl apply -k ./overlays/dev
+option2:- kustomize build ./overlays/dev--------->This requires installing kustomize separately.
+
+
 my-app/
 ├── base/
 │   ├── deployment.yaml
