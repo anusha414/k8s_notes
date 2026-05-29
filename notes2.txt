@@ -292,3 +292,23 @@ So Kubernetes:
 6. /etc/hosts answers “what is this name?”
 /etc/resolv.conf answers “who should I ask?”
 7. coreDNS does not create DNS records for pods as they are epimeral in nature
+
+KUBERNETES OPERATORS:-
+
+1. What is k8s operator?
+Bundle, package and manage custom k8s controller.
+
+2. What is custom k8s controller
+A custom Kubernetes controller is like a smart helper that watches your custom resource and makes sure everything is running the way you want.
+If something goes wrong or changes, it automatically fixes it to match what you originally expected.
+
+3. Using k8s operators you can install custom resources like istio, argocd instead of installing them manually using yaml files or usig helm charts.
+
+Diff between k8s operator and helm charts
+1. helm chart contains chart.yaml, values.yaml and all other yamls related to resources, based on the fields in the values.yaml, resources yaml will get updated if required and the resources will be created.
+But the issue here is at later point of time someone caan manually update the deployment.yaml with wrong value and helm controller will allow it and deos not have capablity to override those changes.
+If we use operators, it has a bundle, furst bundle will be installed and then the resources specified in the bundle will be created. If someone manually updates any ma nifest yaml, operator will override those changes. this is done with help of reconcilation logic that is supported by operator.
+2. If any new upgrades, helm charts must be created with new version and then the resources must be deployed.
+In operator there is support for automatic sync, it automatically updates the resources.
+
+
