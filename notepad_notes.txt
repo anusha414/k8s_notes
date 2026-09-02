@@ -752,6 +752,7 @@ metadata:
 To check if your pod is using default or custom SA, describe the pod there is field "serviceaccount" which says what SA is being used.
 
 IRSA:- IAM role for service account
+example:- Real-world scenario 1: Application reading files from S3
 NOTE:- If service account does not have neccessary permission we will get "403" error.
 
 For the serviceaccount to be used by Pod it must be specified in Pod definition:-
