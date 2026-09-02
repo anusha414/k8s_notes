@@ -716,6 +716,14 @@ https://www.youtube.com/watch?v=tHz_kF7TLkU&t=322s
 What is Service Account?
 In Kubernetes (K8s), a Service Account is a special type of account used by pods to interact with the Kubernetes API server. It provides an identity for processes that run in a pod, allowing them to authenticate and perform actions within the cluster.
 
+Why is it needed?
+When a pod wants to:
+Call the Kubernetes API
+Read cluster resources
+Authenticate to external systems (such as AWS using IRSA)
+
+it needs an identity. That identity is provided by a Service Account
+
 Key Concepts of Service Accounts:
 
 Default Service Account:-
