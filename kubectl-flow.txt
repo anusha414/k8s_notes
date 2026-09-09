@@ -8,11 +8,11 @@ step4:- kubectl send request to api-server along with details such as POST /apis
 step5;- EKS authentication layer validates the token, who generated it, the IAM details of that user will be fetched, In the access entries of the EKS it will check if this
 IAM role is present.
 step6:- checks whether it has authorization to create deployments accordingly
-step7:- checks if the namespace exists and resources are in limit range of resource quotas.
+step7:- Admission controller checks if the namespace exists and resources are in limit range of resource quotas.
 step8:- If validation is ok, store the data in etcd
 step9:- Deployment Controller Detects Deployment, creates replica set controller, rs controller will create pods and pods are in pending state as they are not assigned on any node yet
 step10:- Scheduler finds unscheduled pods, reads the nodeselectors, resource requests, taints and toleration, topology spread constraints and read the node resources and assigns the pods to nodes.
-step11:- kubelet intercats with api-server, kubeclet communicates with containerd(container runtime), this runtime checks and pulls the image
+step11:- kubelet intercats with api-server, kubelet communicates with containerd(container runtime), this runtime checks and pulls the image
 12;- pod will receive an IPaddress from pod networking 
 13:- once container moves to running state, livenessproves/readiness probes are checked
 
