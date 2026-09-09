@@ -1,0 +1,10 @@
+what happens when we execute any kubectl command.
+
+step1:- kubectl first reads the yaml and converts it to a JSON format.
+step2:- It searches for .kube/config file from where the kubectl is getting executed
+step3:- kubeconfig contains the cluster, user and current-context details, sometimes it might contain certificates and keys related to user for authentication and sometimes
+it will use aws eks get-token command to generate a short-lived token for authentication which means it need to have aws login credentials
+step4:- kubectl send request to api-server along with details such as POST /apis/apps/v1/namespaces/default/deployments and token generated.
+step5;- EKS authentication layer validates the token, who generated it, the IAM details of that user will be fetched, In the access entries of the EKS it will check if this
+IAM role is present.
+step6:- checks whether it has authorization to create deployments accordingly
