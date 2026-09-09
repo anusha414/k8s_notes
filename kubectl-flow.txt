@@ -74,4 +74,24 @@ Make changes through API Server.
 POSSIBLE ERROR CODES:-
 
 pod status is running but application is not accessible
-1. 404:- 
+
+1. 404 Not Found:- wrong ingress path by user
+your application is accessible on /path1 but the user is trying to access /, application itself returns "404" because endpoint doesn't exists
+
+2. 502 Bad Gateway:- 
+Service has no healthy backend pods it could be because there is mismatch in the application port, the application maybe accessible on 8080 but in the targetport of service
+you mentioned like 9090
+
+3. 503 Service Unavailable:-
+No endpoints behind Service it could be because Pod labels and Service selector mismatch or it could be because readiness probe is failing and Kubernetes removes pod from Service endpoints.
+
+4. curl: (7) Connection refused:-
+application is listening on a different port
+
+5. curl: (28) Operation timed out:-
+Network Policy blocking traffic to pods
+Node Security Group / Firewall issue, Common in EKS, Load Balancer can reach node?
+
+6. 500 Internal Server Error
+
+7. 504 Gateway Timeout
