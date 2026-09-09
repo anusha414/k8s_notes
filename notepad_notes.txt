@@ -162,8 +162,23 @@ okteto/hello-chaos
 
 Pods status:-
 
-Container creating
-Pending:- image is getting pulled from docker hub r registry
+Container creating:- this is sub state of pending
+1. Create Pod sandbox
+2. Setup networking
+3. Mount volumes
+4. Pull container image;- large image is being pulled
+5. Create container
+6. Start container
+If any of these steps take time, you'll see container creating
+
+Pending:- 
+1. Scheduler not able to find a suitable node that contains the requested resources
+2. Node that actually matches the nodeaffinity or nodeselector is not available
+3. There are tainted nodes and the pod definition does not have the tolerations.
+4. image is getting pulled from docker hub r registry
+5. Persistent Volume Claim Not Bound because no PV or storageclass can satisfy it.
+
+
 Crashloopback off:- container doesnot have enough resources 
 ErrImgPull:- image cannot be pulled from registry
 ImagePullBackOff:- this is basically observed when there are some issues with the image.
