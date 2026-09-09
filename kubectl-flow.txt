@@ -8,16 +8,65 @@ step4:- kubectl send request to api-server along with details such as POST /apis
 step5;- EKS authentication layer validates the token, who generated it, the IAM details of that user will be fetched, In the access entries of the EKS it will check if this
 IAM role is present.
 step6:- checks whether it has authorization to create deployments accordingly
-step7:- Admission controller checks if the namespace exists and resources are in limit range of resource quotas.
+step7:- api-server calls Admission controller and it checks if the namespace exists and resources are in limit range of resource quotas.
 step8:- If validation is ok, store the data in etcd
-step9:- Deployment Controller Detects Deployment, creates replica set controller, rs controller will create pods and pods are in pending state as they are not assigned on any node yet
+step9:- The Deployment Controller continuously watches the API Server., Deployment Controller Detects Deployment in api-server, creates replica set controller, rs controller will create pods and pods are in pending state as they are not assigned on any node yet
 step10:- Scheduler finds unscheduled pods, reads the nodeselectors, resource requests, taints and toleration, topology spread constraints and read the node resources and assigns the pods to nodes.
 step11:- kubelet intercats with api-server, kubelet communicates with containerd(container runtime), this runtime checks and pulls the image
 12;- pod will receive an IPaddress from pod networking 
 13:- once container moves to running state, livenessproves/readiness probes are checked
 
-Inside:
+Admission Controller:-
+Admission Controllers are one of the most important Kubernetes concepts because they act as gatekeepers between authorization and storing objects in etcd
+Authentication verifies who you are.
+Authorization verifies what you're allowed to do.
+Admission Controllers verify whether the object itself is acceptable.
 
+Authentication
+↓
+Show passport
+(Who are you?)
 
+Authorization
+↓
+Do you have a valid ticket?
+(Are you allowed?)
 
+Admission Controller
+↓
+Security screening
+(Is what you're carrying allowed?)
+
+Popular Admission controllers:-
+1. Resource Quota:- checks if the pod resources requests are within resource quota limits
+2. LimitRanger:- Adds default requests and limits because requets and limits is mandatory if the namespace has resource quotas configured
+3. NamespaceLifecycle:- checks namespace validity, checks if the namespace exists
+4. Pod Security Admission:-
+5. DefaultStorageClass
+
+kube-controller-manager:-
+kube-controller-manager is one of the core control plane components of Kubernetes.
+Think of Kubernetes as a system that constantly tries to make the actual state match the desired state.
+This is the component responsible for it.
+kube-controller-manager is a process that runs multiple controllers.
 kube-controller-manager
+    ├─ Deployment Controller
+    ├─ ReplicaSet Controller
+    ├─ Node Controller
+    ├─ Job Controller
+    ├─ ServiceAccount Controller
+    ├─ Namespace Controller
+    ├─ Endpoint Controller
+    └─ Many others
+All controllers continuously watch the API Server.
+etcd
+↑
+API Server
+↑
+Controllers
+
+Controllers never talk directly to etcd.
+They:
+Read current state from API Server.
+Compare desired vs actual.
+Make changes through API Server.
