@@ -70,3 +70,8 @@ They:
 Read current state from API Server.
 Compare desired vs actual.
 Make changes through API Server.
+
+POSSIBLE ERROR CODES:-
+
+pod status is running but application is not accessible
+1. 404:- 
