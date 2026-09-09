@@ -364,6 +364,8 @@ spec:
           ports:
             - containerPort: 8080
 
+NOTE:- In Kubernetes, containerPort is only metadata/documentation. It does not change the port on which the application inside the container listens.
+
 
 Resource Quotas in Namespaces:-(Video source:- https://www.youtube.com/watch?v=rVlZ8XxMD4U)
 
@@ -371,6 +373,29 @@ Resource Quotas in Namespaces:-(Video source:- https://www.youtube.com/watch?v=r
 2. Resource quotas allow Kubernetes administrators to control the consumption of resources like CPU, memory, storage, and other types of resources, so that individual teams or applications within a namespace do not consume all available resources on the cluster, leading to resource contention or failure to schedule new pods.
 3. explain dev & QA example where QA using all
 4. https://kubernetes.io/docs/concepts/policy/resource-quotas/
+5. Both requests and limits are defined in resources quotas and both are checked when new pods get created, which means the pods requests and limits must be within the resource quotas requests and limits.
+6. new namespaces with resource requests and limits can be created even if cluster doesn't have enough resources, Pods reserve the resources whereas namespaces does not reserve the resources, they are just defining the limits.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-quota
+  namespace: name1
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    pods: "10"
+
+Easy way to remember
+Namespace = logical folder/project.
+ResourceQuota = spending limit for that folder.
+Pod requests = actual reservation made when pods are scheduled.
+Pod limits = maximum resource consumption allowed for the pod.
+
+NOTE:- If resources quotas are defined then pods must define resources requests and limits or else you will get an error.
+Kubernetes will reject the pod creation (or keep it from being admitted) if the pod's resource requests/limits would cause the namespace to exceed its ResourceQuota.
 
 important Notes:-
 
