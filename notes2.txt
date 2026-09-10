@@ -59,6 +59,28 @@ Step 5: ⚙️ Service → Pod
 • Load balances across pods
 Step 6: ✅ Response goes back same path
 
+User
+  |
+  | requests https://mlops.com
+  v
+DNS
+  |
+  | resolves mlops.com -> Load Balancer IP
+  v
+Load Balancer
+  |
+  | forwards traffic
+  v
+Ingress Controller (Traefik/NGINX)
+  |
+  | checks Ingress rules
+  v
+Kubernetes Service
+  |
+  v
+Pod
+
+
 Ingress is a Kubernetes resource that manages external access to services inside the cluster.
 It lets you route traffic (like HTTP/HTTPS) to different services based on URL or domain.
 Instead of exposing many services, you use one entry point (Ingress) to control everything.
