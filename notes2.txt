@@ -96,6 +96,10 @@ NOTE:- ingressClassName is mandatory because we are telling the cluster to use t
 
 NOTE:-
 1. if a Load balancer has a security group, then even the node on which the pod is running must have security groups to allow it
+2. ingress port is independent of service port, for eg:- 
+Client talks to Ingress on 80 (or 443 for HTTPS)
+Ingress forwards to Service on 8080
+Service forwards to Pod on 6000
 
 K8S TROUBLESHOOTING:-
 
