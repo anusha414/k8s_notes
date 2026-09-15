@@ -81,9 +81,28 @@ your application is accessible on /path1 but the user is trying to access /, app
 2. 502 Bad Gateway:- 
 Service has no healthy backend pods it could be because there is mismatch in the application port, the application maybe accessible on 8080 but in the targetport of service
 you mentioned like 9090
+Client ✅
+ ↓
+LB ✅
+ ↓
+Ingress ✅
+ ↓
+Service ✅
+ ↓
+Pod ❌
 
 3. 503 Service Unavailable:-
 No endpoints behind Service it could be because Pod labels and Service selector mismatch or it could be because readiness probe is failing and Kubernetes removes pod from Service endpoints.
+The server is temporarily unable to serve the request because no healthy backend is available.
+Client ✅
+ ↓
+LB ✅
+ ↓
+Ingress ✅
+ ↓
+Service ✅
+ ↓
+No healthy Pods ❌
 
 4. curl: (7) Connection refused:-
 application is listening on a different port
@@ -93,5 +112,24 @@ Network Policy blocking traffic to pods
 Node Security Group / Firewall issue, Common in EKS, Load Balancer can reach node?
 
 6. 500 Internal Server Error
+The request successfully reached the application server, but the application failed while processing it.
+Unlike a 404, where the server says:
+"I don't have that page."
+A 500 means:
+"Something went wrong inside me while trying to handle your request."
+Client ✅
+LB ✅
+Ingress ✅
+Service ✅
+Pod ✅
+Application ❌
+
+In Kubernetes, traffic has already passed through components such as DNS, Load Balancer, Ingress, Service, and Pod. Common causes include application bugs, database connectivity failures, missing configuration, dependency failures, or unhandled exceptions. The first place to investigate is usually the application logs using kubectl logs.
 
 7. 504 Gateway Timeout
+1. Is DNS reachable? Is the DNS name correct?does the DNS name actually exists?
+2. Is load balancer reachable?
+3. check if host name is properly configured in ingress
+4. Port mismatch
+5. service as no endpoints
+6. database timeout
