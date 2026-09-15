@@ -133,3 +133,25 @@ In Kubernetes, traffic has already passed through components such as DNS, Load B
 4. Port mismatch
 5. service as no endpoints
 6. database timeout
+
+Load Balancer security Groups:-
+
+Internet
+   |
+   v
+[Load Balancer]
+Inbound: 443 from Internet
+Outbound: 8080 to Nodes
+   |
+   v
+[K8s Nodes]
+Inbound: 8080 from LB
+Outbound: Allow All
+
+Do I need outbound rules on nodes?
+Normally yes, allow all outbound.
+This lets the node:
+Respond back to the load balancer
+Reach databases
+Pull container images
+Access AWS services if needed
