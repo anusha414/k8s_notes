@@ -13,7 +13,7 @@ step8:- If validation is ok, store the data in etcd
 step9:- The Deployment Controller continuously watches the API Server., Deployment Controller Detects Deployment in api-server, creates replica set controller, rs controller will create pods and pods are in pending state as they are not assigned on any node yet
 step10:- Scheduler finds unscheduled pods, reads the nodeselectors, resource requests, taints and toleration, topology spread constraints and read the node resources and assigns the pods to nodes.
 step11:- kubelet intercats with api-server, kubelet communicates with containerd(container runtime), this runtime checks and pulls the image
-12;- pod will receive an IPaddress from pod networking 
+12;- kubecelet invokes CNI plugin and pod will receive an IPaddress from pod networking/CNI plugin, volumes are attached to pod by kubelet and containerd will start the container
 13:- once container moves to running state, livenessproves/readiness probes are checked
 
 Admission Controller:-
