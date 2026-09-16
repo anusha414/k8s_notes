@@ -55,6 +55,10 @@ spec:
         - name: vol1
           mountPath: /var/lib
 
+Based on what you've described:
 
+Nginx sidecar is probably handling TLS termination/reverse proxy.
+Logging is likely handled by a DaemonSet (Fluent Bit, Splunk Forwarder, Azure Monitor Agent, etc.).
+Monitoring is likely handled by Prometheus, Datadog, Dynatrace, or Azure Monitor agents running at cluster/node level.
 
 
