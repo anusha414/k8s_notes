@@ -1,4 +1,4 @@
-SIDECAR CONTAINER:-
+SIDECAR CONTAINER:-(Video:- https://capgemini.udemy.com/course/modern-java-development-spring-boot-microservices-spring/learn/lecture/57513237#overview)
 
 1. A single pod can contain multiple containers.
 2. One container will be the main application container and other containers will be supporting containers and they are called as sidecar containers.
@@ -12,5 +12,49 @@ Log Collection
 Monitoring
 Service Mesh Proxy (Istio)
 Secrets Management
+
+NOTE:- A pod can contain multiple application containers but we restrict it to have only one main application container, because if different app containers are present 
+they will have different scaling requirements.
+
+example:-
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      type: frontend
+  template:
+    metadata:
+      name: pod
+      labels:
+        type: frontend
+    spec:
+      volumes:
+      - name: vol1
+        emptyDir: {}
+      containers:
+      - name: con1
+        image: busybox
+        command:
+        - sh
+        - -c
+        - |
+          while true; do
+            echo "$(date) Hello World" >> /var/logs/busybox.log
+            sleep 20
+          done        
+        volumeMounts:
+        - name: vol1
+          mountPath: /var/logs
+      - name: con2
+        image: nginx:latest
+        volumeMounts:
+        - name: vol1
+          mountPath: /var/lib
+
+
 
 
