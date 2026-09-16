@@ -1677,6 +1677,31 @@ spec:
         image: alpine
         command: ["sh", "-c", "echo 'hello world'"]
 
+Cronjob:-
+In Kubernetes (K8s), a CronJob is a resource that creates Jobs on a scheduled basis, similar to the Linux cron scheduler.
+Creates a Kubernetes Job, and the Job creates one or more Pods to execute the task.
+eg:-
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mysql-backup
+spec:
+  schedule: "0 2 * * *"   # Run daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: mysql:8.0
+            command:
+            - /bin/sh
+            - -c
+            - >
+              mysqldump -h mysql-service -u root -ppassword mydb
+              > /backup/mydb.sql
+          restartPolicy: OnFailure
+
 SSL/ TLS how they work:-(Video:- https://www.youtube.com/watch?v=njT5ECuwCTo)
 
 1. User who wantes to send a request to the server(web server or application server).
