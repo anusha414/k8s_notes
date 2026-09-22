@@ -58,6 +58,9 @@ spec:
 Based on what you've described:
 
 Nginx sidecar is probably handling TLS termination/reverse proxy.
+Nginx handles the certificate (tls.crt, tls.key), performs the TLS handshake, decrypts the traffic, and forwards it to the app.
+This is mainly for HTTPS requests.
+
 Logging is likely handled by a DaemonSet (Fluent Bit, Splunk Forwarder, Azure Monitor Agent, etc.).
 Monitoring is likely handled by Prometheus, Datadog, Dynatrace, or Azure Monitor agents running at cluster/node level.
 
