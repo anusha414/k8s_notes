@@ -9,6 +9,28 @@ scheduler, and controller manager across multiple Availability Zones for high av
 Cluster Autoscaler and karpenter they help in scaling the nodes. They solve the same problem but in different ways:-
 Cluster autosacler checks the pods that are in pending state and it will question ok the existing worker nodes cannpt allocate these pods because they have no resources left.
 So it will create new node and deploy the pods on to that.
-Issue;- What if pod required more cpu and memory but the node that is created by the ClusterAutosacler does not support, solution is Karpenter
+Issue:- What if pod required more cpu and memory but the node that is created by the ClusterAutosacler does not support, solution is Karpenter
+NOTE:- Cluster Autoscaler and Karpenter they run as pods
 
 Karpenter:- It checks the pod requirements and directly launces a node with higher cpu and memory. This is mostly like AWS lambda
+1. Create EKS Cluster
+   ↓
+2. AWS creates only the control plane
+   (API Server, Scheduler, etcd, Controller Manager)
+   ↓
+3. There are NO worker nodes yet
+   ↓
+4. CoreDNS, Karpenter, Metrics Server, Apps
+   cannot run because pods need worker nodes
+   ↓
+5. All those pods stay in Pending state
+   ↓
+6. Create a Node Group (or some initial worker node)
+   ↓
+7. EC2 instances start, run bootstrap.sh,
+      and automatically register with EKS
+   ↓
+8. Nodes become Ready
+   ↓
+9. Scheduler can now place CoreDNS,
+      Karpenter, Metrics Server, and application pods
