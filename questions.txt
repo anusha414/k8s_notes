@@ -1,0 +1,14 @@
+1. what did u do in ur organizations?
+I have created deployments, implemented probes like liveness, readiness and startup probe, implemented HPA, PDB, topology spread contraints, created configmaps and secrets.
+
+2. how does ur k8s cluster actually look like in real time that u have worked, n seems like u have used eks do can u please explain in that context?
+There are 3 environemnts:- dev, qa and prod. Prod and QA infrastructure must be same.
+We use Amazon EKS, so the control plane (master nodes) is managed by AWS. We don't provision or maintain the master nodes ourselves. AWS runs the API server, etcd, 
+scheduler, and controller manager across multiple Availability Zones for high availability.
+
+Cluster Autoscaler and karpenter they help in scaling the nodes. They solve the same problem but in different ways:-
+Cluster autosacler checks the pods that are in pending state and it will question ok the existing worker nodes cannpt allocate these pods because they have no resources left.
+So it will create new node and deploy the pods on to that.
+Issue;- What if pod required more cpu and memory but the node that is created by the ClusterAutosacler does not support, solution is Karpenter
+
+Karpenter:- It checks the pod requirements and directly launces a node with higher cpu and memory. This is mostly like AWS lambda
