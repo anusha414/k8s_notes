@@ -1,6 +1,19 @@
 1. what did u do in ur organizations?
 I have created deployments, implemented probes like liveness, readiness and startup probe, implemented HPA, PDB, topology spread contraints, created configmaps and secrets.
 
+2. what happens when api-server is down? Do u like get notified?
+In a well-managed Kubernetes/EKS cluster, you should get notified if the API server is down, but it depends on what monitoring and alerting has been configured.
+If it becomes unavailable:
+✅ Existing application pods continue running.
+✅ Existing pod-to-pod communication continues working.
+✅ Existing services continue routing traffic.
+❌ You cannot run kubectl get pods.
+❌ New pods cannot be scheduled.
+❌ HPA cannot create/delete pods.
+❌ Cluster Autoscaler cannot react to scaling requests.
+❌ Controllers cannot reconcile desired state.
+Deployments, StatefulSets, DaemonSets stop managing workloads.
+
 2. how does ur k8s cluster actually look like in real time that u have worked, n seems like u have used eks do can u please explain in that context?
 There are 3 environemnts:- dev, qa and prod. Prod and QA infrastructure must be same.
 We use Amazon EKS, so the control plane (master nodes) is managed by AWS. We don't provision or maintain the master nodes ourselves. AWS runs the API server, etcd, 
