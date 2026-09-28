@@ -64,6 +64,11 @@ This is mainly for HTTPS requests.
 Logging is likely handled by a DaemonSet (Fluent Bit, Splunk Forwarder, Azure Monitor Agent, etc.).
 Monitoring is likely handled by Prometheus, Datadog, Dynatrace, or Azure Monitor agents running at cluster/node level.
 
+STATIC PODS:-
+1. every component in k8s cluster basically runs as pods called static pods, if scheduler itself is running as pod, and scheduler is not responsible for scheduling these pods.
+2. Kubelet on the controlplane is responsible for creating controlplane component pods by using manifests stored in /etc/kuberenets/manifests
+
+
 KUBE-PROXY:-(Video:- https://www.youtube.com/watch?v=2twz_FIDIlo)
 kube-proxy is a Kubernetes component that runs on every node and is responsible for implementing Service networking.
 When an end user tried to access amazon.com. what happens is that associated load balancer from DNS record will be called and it might have endpoints like Nodes and the ports.
