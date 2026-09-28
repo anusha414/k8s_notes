@@ -109,3 +109,15 @@ runc
    |
 Linux Kernel
 
+CNI(Container Network Interface):-
+CNI (Container Network Interface) in Kubernetes is the networking layer that gives Pods their IP addresses and enables Pod-to-Pod, Pod-to-Service, and Pod-to-External communication. Kubernetes itself does not perform the networking. Instead, it relies on a CNI plugin to implement the Kubernetes networking model.
+CNI creates those routes and networking rules so that traffic knows where to go.
+The container runtime invokes the CNI plugin.
+The CNI plugin:
+Creates a network interface for the Pod
+Assigns an IP address
+Configures routing rules
+Ensures the Pod can communicate across the cluster
+NOTE;- calico is used for local k8s cluster where VPC CNI plugin is used for EKS, Each Pod gets an IP from the VPC subnet.
+NOTE:- pod->pod communication done by CNI, pod->service done by kube-proxy
+
