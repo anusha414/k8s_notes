@@ -64,12 +64,13 @@ This is mainly for HTTPS requests.
 Logging is likely handled by a DaemonSet (Fluent Bit, Splunk Forwarder, Azure Monitor Agent, etc.).
 Monitoring is likely handled by Prometheus, Datadog, Dynatrace, or Azure Monitor agents running at cluster/node level.
 
-KUBE-PROXY:-
+KUBE-PROXY:-(Video:- https://www.youtube.com/watch?v=2twz_FIDIlo)
 kube-proxy is a Kubernetes component that runs on every node and is responsible for implementing Service networking.
 When an end user tried to access amazon.com. what happens is that associated load balancer from DNS record will be called and it might have endpoints like Nodes and the ports.
 How does the traffic get routed to the exact application pod? because there might be many application pods running on a node.
 Kube-proxy is helpful here, it will have iptables, where it keeps the record of each nodeip->port and its respective clusterIPservice and the respective pod and its IP.
 It sends the traffic to pods in RR format
+Endpoints tell Kubernetes where the Pods are, but kube-proxy uses iptables/IPVS to teach the Linux kernel how packets should actually reach those Pods. Without kube-proxy, a Service's ClusterIP is just metadata and traffic would not be forwarded to backend Pods.
 
 NOTE:- Linux doesn't know what 10.96.0.100 is.
 It's not a real network interface. It's not assigned to any machine. It's just a virtual IP stored in Kubernetes.
@@ -86,5 +87,25 @@ Creates iptables/IPVS rules
        ↓
 Traffic starts flowing
 
-
+Container Runtime(containerd):-
+It is the software that actually runs the containers. pulling the image, creating, start, stopping and deleting the containers. eg;- containerd, cri-o
+containerd is the container runtime on EKS.
+Kubelet communicates with containerd through the Container Runtime Interface (CRI). Think CRI as a communication protocol. without CRI k8s would work with only docker.
+with CRI it can work with any runtime.
+containerd calls runc to create the containers
+Pod Spec
+   |
+API Server
+   |
+Scheduler
+   |
+Kubelet
+   |
+   | CRI
+   |
+containerd
+   |
+runc
+   |
+Linux Kernel
 
