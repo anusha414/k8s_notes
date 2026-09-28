@@ -64,4 +64,27 @@ This is mainly for HTTPS requests.
 Logging is likely handled by a DaemonSet (Fluent Bit, Splunk Forwarder, Azure Monitor Agent, etc.).
 Monitoring is likely handled by Prometheus, Datadog, Dynatrace, or Azure Monitor agents running at cluster/node level.
 
+KUBE-PROXY:-
+kube-proxy is a Kubernetes component that runs on every node and is responsible for implementing Service networking.
+When an end user tried to access amazon.com. what happens is that associated load balancer from DNS record will be called and it might have endpoints like Nodes and the ports.
+How does the traffic get routed to the exact application pod? because there might be many application pods running on a node.
+Kube-proxy is helpful here, it will have iptables, where it keeps the record of each nodeip->port and its respective clusterIPservice and the respective pod and its IP.
+It sends the traffic to pods in RR format
+
+NOTE:- Linux doesn't know what 10.96.0.100 is.
+It's not a real network interface. It's not assigned to any machine. It's just a virtual IP stored in Kubernetes.
+So who tells Linux: kube-proxy
+Service created
+       ↓
+API Server stores Service
+       ↓
+Endpoints created
+       ↓
+kube-proxy notices change
+       ↓
+Creates iptables/IPVS rules
+       ↓
+Traffic starts flowing
+
+
 
