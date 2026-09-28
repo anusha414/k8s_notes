@@ -118,6 +118,7 @@ Creates a network interface for the Pod
 Assigns an IP address
 Configures routing rules
 Ensures the Pod can communicate across the cluster
-NOTE;- calico is used for local k8s cluster where VPC CNI plugin is used for EKS, Each Pod gets an IP from the VPC subnet.
+NOTE:- calico is used for local k8s cluster where VPC CNI plugin is used for EKS, Each Pod gets an IP from the VPC subnet.
 NOTE:- pod->pod communication done by CNI, pod->service done by kube-proxy
+NOTE:- The CNI plugin watches for NetworkPolicy resources and programs the underlying networking layer accordingly. Kubernetes requires a compatible CNI plugin to implement networking behavior.
 
