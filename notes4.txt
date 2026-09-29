@@ -127,3 +127,7 @@ NOTE:- calico is used for local k8s cluster where VPC CNI plugin is used for EKS
 NOTE:- pod->pod communication done by CNI, pod->service done by kube-proxy
 NOTE:- The CNI plugin watches for NetworkPolicy resources and programs the underlying networking layer accordingly. Kubernetes requires a compatible CNI plugin to implement networking behavior.
 
+KEDA(Kubernetes Event driven Autoscaling):-
+-> scaling workloads based on real demand- not just memory and cpu
+-> autoscaling pods based on events
+
