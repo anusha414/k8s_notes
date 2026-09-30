@@ -203,6 +203,21 @@ There are 2 ways to pass environment variables to pods using configmap:-
 1. create configmap and pass them in the pod definition
 problem with this:- suppose you would have created a pod and that pod is using configmap file and DBport value 33, later you would have changes the value of DBport to 34 in configmap. but the pod is still having 33 and is not aware of 34. we cannot restart our pods to reflect because there will be traffic
 To solve this, we will use Volumemounts
+spec:
+  containers:
+  - name: con1
+    image: nginx
+    env:
+    - name: USERNAME
+      valueFrom:
+        configMapKeyRef:
+          name: cm1
+          key: user
+    - name: PASSWORD
+      valueFrom:
+        configMapKeyRef:
+          name: cm1
+          key: pass
 2. VolumeMounts:- instead of using environment variables we will create a volume and mount it.
 here if you do "env" u cannot see the variable value, they are copied on the folder that we mounted and we can print the variable value.
 the changed values get updated even without restarting the pods.
