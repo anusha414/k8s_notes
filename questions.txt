@@ -24,6 +24,17 @@ Kubelet starts the container.
 
 NOTE:- ap-server cannot run without etcd, api gets info from etcd
 
+3. What node-level changes would you make to improve fault tolerance for pods?
+Think about preventing a node failure from taking down your application, Use anti-affinity so replicas don't land on the same node
+podAntiAffinity:
+  preferredDuringSchedulingIgnoredDuringExecution:
+  - weight: 100
+    podAffinityTerm:
+      labelSelector:
+        matchLabels:
+          app: nginx
+      topologyKey: kubernetes.io/hostname
+
 2. how does ur k8s cluster actually look like in real time that u have worked, n seems like u have used eks do can u please explain in that context?
 There are 3 environemnts:- dev, qa and prod. Prod and QA infrastructure must be same.
 We use Amazon EKS, so the control plane (master nodes) is managed by AWS. We don't provision or maintain the master nodes ourselves. AWS runs the API server, etcd, 
