@@ -142,8 +142,8 @@ The key reason is Container images are pulled before the Pod starts, but IRSA on
 
 POD STATUS:-
 1. Pod is not scheduled:- Pending
-2. Pod is scheduled container creation error:- container creation
-3. Pod scheduled, container runtime error
+2. Pod is scheduled container creation error:- container creation, imgpullbackoff
+3. Pod scheduled, container runtime error:- crashloopbackoff
 Your Pod will be on any of these status and you will have to find out in which state it is.
 
 PENDING:-
@@ -160,11 +160,15 @@ solution:- check if a PV exists for the PVC and the requested storage is actuall
 4. Node taint and toleration:- Pod is trying to be schedules on a node that has taint and the pod doesn't have toleration.
 
 CONTAINER CREATION ERROR:-
-1. configmap not found:- before the container gets created, it will check the configmap associated with the pod
+1. configmap not found:- before the container gets created, it will check the configmap associated with the pod, if it is not found you will get this error and the pod will be stuck in container creating status
+2. secret not found:- before the container gets created, it will check the secret associated with the pod, if it is not found you will get this error and the pod will be stuck in container creating status
+3. resource quota exceeded:-
+For this there is no error, Your deployment wants replicas of 3, but when u checked the pods only 2 pods are available and in running state but the remaining one pod is not even available with any statuses, Y so? It is because we have the resource quota pod limit to 2 for the namespace and it is rejecting the extra pod.
+You can view this error by describing the replicaset
 
 CRASHLOOPBACKOFF:-
 
-1. A pod gets scheduled onto a node by the scheduler, kubelete in the node will pull the image and update the status of the pod from "pending" to "container creating".
+1. A pod gets scheduled onto a node by the scheduler, kubelet in the node will pull the image and update the status of the pod from "pending" to "container creating".
 2. From the "container creating" status the pod can move to either "running" or "error" status.
 3. From "running/error" status it can move to "crashed" state and k8s will try to restart the pod in an incremental limit, it will again go to "container creation" and this is a loop
 
@@ -172,6 +176,8 @@ Main reasons for crashloopbackoff error:-
 1. providing wrong command line arguments eg:- passing app1.py instead of app.py in "CMD python3 app.py"
 2. liveness probe has failed then container will go into crashloopbackoff.
 3. Out of memory error-------->reach out to developer to increase the limits you should not do it by yourself, repeated OOM error will result in crashloopbackoff.
+4. init Container failure:- the main container will move to container creating state only if the init container has completed successfully. If the init container itself is failing then in the status it will display as "init: crashloopbackoff error"
+5. database connection failure
 
 DEPLOYMENT STRATAGIES:-(Video:- https://www.youtube.com/watch?v=0QhUhrWGB9k&t=131s)
 
