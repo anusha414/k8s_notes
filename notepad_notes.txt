@@ -256,6 +256,7 @@ binaryData	Stores binary content, such as images, compiled files, or any non-tex
 
 Errors Observed:-
 CreateContainerConfigError:- this usually occurs when there is issue with configmaps, both config and the container using the configmap must be in the same namespace.
+wrong configmap name, wrong key name
 
 Secrets:-
 secrets also solves the same problem but it deals with sensitive data.
@@ -319,6 +320,8 @@ NOTE:- there are 3 ways of referring configmaps/secrets in deploymeny YAML defin
 1. use configmapkeyref/secretkeyref to get a single key from the resource.
 2. using configmapref/secretref to get all the keys.
 3. Mount using volumes to get all the keys and also no need to restart the pods of the values changes, they are automatically fetched.
+
+NOTE:- application settings, environment level configurations, connection strings were stored in configmaps and secrets
 
 
 Kubernetes Storage:-
@@ -1679,7 +1682,7 @@ spec:
   backoffLimit: 3---------------->max number of times pod will be restarted if there is an error before reporting to status
   completions: 2-----------------> 2 pods will be created
   activeDeadlineSeconds: 59--------> amount of time taken to complete the pod, it should not exceed more than thos
-  parallelism: 2------------------->number of pods to be excuted in parellel
+  parallelism: 2------------------->number of pods to be executed in parellel
   template:
     metadata:
       name: pod
@@ -1691,6 +1694,8 @@ spec:
       - name: con1
         image: alpine
         command: ["sh", "-c", "echo 'hello world'"]
+
+NOTE:- Job automatically creates labels with jobname so that it can monitor the pods for creation or deletion
 
 Cronjob:-
 In Kubernetes (K8s), a CronJob is a resource that creates Jobs on a scheduled basis, similar to the Linux cron scheduler.
@@ -1784,5 +1789,3 @@ SIDE CAR CONTAINER:-(Video:- https://www.youtube.com/watch?v=6bVlL9pwKn8&t=1149s
 
 LABELS and ANNOTATIONS:-
 KUBE_PROXY in case of services
-
-
