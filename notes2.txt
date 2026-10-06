@@ -151,8 +151,10 @@ Pod is not scheduled on any node yet.
 Reason are below:-
 1. Insufficient storage:- the resources requested by the pod are not actually present in the worker nodes
 solution:- add a new node or check with developers if the requested resources are actually needed for that pod.
+0/2 nodes are available: 2 Insufficient memory. preemption: 0/2 nodes are available: 2 No preemption victims found for incoming pod.
 2. Node Affinity:- We have mentioned to deploy the pod on a specific node and that particular node is not available
 solution:- Try to find a different node and assign on that or add labels to the existing node
+0/2 nodes are available: 2 node(s) didn't match Pod's node affinity/selector. preemption: 0/2 nodes are available: 2 Preemption is not helpful for scheduling
 3. Unbound Persistent Volume:- Pod did not find a pvc, When pod needs a persistent volume, it must be attached to the pod even before being schedules on a pod if not u will get the above error
 solution:- check if a PV exists for the PVC and the requested storage is actually available in the PV and requests admin to create
 4. Node taint and toleration:- Pod is trying to be schedules on a node that has taint and the pod doesn't have toleration.
