@@ -118,7 +118,7 @@ NOTE:- ingressClassName is mandatory because we are telling the cluster to use t
 
 NOTE:- There is one more controller called load blancer controller, the difference between nginx controller and load balancer controller is that, nginx create a service of type load balancer and when AWS sees this service it creates ELB/NLB, but in case of load lancer controller for every ingress resource it creates a ALB or else you can use existing one as well by using annotations
 ALB/NLB controllers create target groups automatically, these target groups contain the ip address of the pods or nodes for ALB but for NLB they contain nginx pods IP address
-ALB has security groups with inound and outbound traffic rules but NLB does not have any security groups it just uses target groups or node security group to allow/deny traffic
+ALB has security groups with inound and outbound traffic rules but NLB does not have any security groups it just uses target groups or node security group to allow/deny traffic.
 
 NOTE:-
 1. if a Load balancer has a security group, then even the node on which the pod is running must have security groups to allow it
