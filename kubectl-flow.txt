@@ -71,6 +71,24 @@ Read current state from API Server.
 Compare desired vs actual.
 Make changes through API Server.
 
+User
+  ↓
+API Server
+  ↓
+(etcd stores Deployment object)
+  ↓
+Deployment Controller notices new Deployment
+  ↓
+Creates ReplicaSet
+  ↓
+ReplicaSet Controller notices ReplicaSet
+  ↓
+Creates Pods
+  ↓
+Scheduler assigns Pods to Nodes
+  ↓
+Kubelet starts containers on Nodes
+
 POSSIBLE ERROR CODES:-
 
 pod status is running but application is not accessible
