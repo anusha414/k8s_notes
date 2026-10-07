@@ -1,0 +1,11 @@
+1. Pods are running successfully, but the Kubernetes Service has no endpoints. What could be wrong? 
+If Pods are running but a Service has no endpoints, the first thing I check is whether the Service selector matches the Pod labels. This is the most common cause. 
+Then I verify that the Pods are Ready, because Kubernetes only adds Ready Pods to Service endpoints. I also check that both the Service and Pods are in the same namespace 
+and inspect the Service using kubectl describe svc <service-name> and the Pod labels using kubectl get pods --show-labels.
+
+2. A pod can communicate with another pod in the same namespace but cannot communicate with a pod in another namespace. What would you check?
+Pods in different namespace can communicate with eachother only by using FQDN.
+Just check if the networkpolicies allows te pods to communicate with eachother, as they are in different namespace network policy must have namespace selector as well.
+
+3. How would you design NetworkPolicies for a three-tier application: frontend → backend → database? 
+Use default-deny, then allow frontend→backend on required ports, backend→database on the DB port, and required DNS egress. Do not allow frontend directly to the database
