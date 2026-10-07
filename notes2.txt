@@ -315,6 +315,7 @@ Why do we need CoreDNS?
 we usually create service to access pods via service as pods IPaddresses are not static.
 If we try to access the service by the service name we will get could not resolve host but when we try to access the service with IPaddress we are able to access it successfully.
 The problem here DNS is not able to resolve service name to its IPaddress. There is some issue with your DNS.
+CoreDNS watches the API server and automatically maintains DNS records for Services. The service name resolves to a ClusterIP, and traffic is then routed to the target pods.
 
 In k8s, To be able to resolve the service name into its IPaddress, coreDNS will be required, its pods must be running.
 CoreDNS is a DNS server provides the funtionality of domain name resolution of service to its IPname.
