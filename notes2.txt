@@ -140,7 +140,7 @@ NOTE:-
 Why IRSA cannot be used for image pulls
 The key reason is Container images are pulled before the Pod starts, but IRSA only works after the Pod is running.
 
-POD STATUS:-
+POD STATUS:-(Video:- https://www.youtube.com/watch?v=viMWeRQnZOE&t=4871s)
 1. Pod is not scheduled:- Pending
 2. Pod is scheduled container creation error:- container creation, imgpullbackoff
 3. Pod scheduled, container runtime error:- crashloopbackoff
