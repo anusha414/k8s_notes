@@ -67,6 +67,7 @@ Monitoring is likely handled by Prometheus, Datadog, Dynatrace, or Azure Monitor
 STATIC PODS:-
 1. every component in k8s cluster basically runs as pods called static pods, if scheduler itself is running as pod, and scheduler is not responsible for scheduling these pods.
 2. Kubelet on the controlplane is responsible for creating controlplane component pods by using manifests stored in /etc/kuberenets/manifests
+3. Kubelet must be configured with --pod-manifest-path=/etc/Kubernetes/manifests
 
 
 KUBE-PROXY:-(Video:- https://www.youtube.com/watch?v=2twz_FIDIlo)
@@ -98,6 +99,7 @@ containerd is the container runtime on EKS.
 Kubelet communicates with containerd through the Container Runtime Interface (CRI). Think CRI as a communication protocol. without CRI k8s would work with only docker.
 with CRI it can work with any runtime.
 containerd calls runc to create the containers
+runc's primary job is to create the actual Linux process that becomes your container.
 Pod Spec
    |
 API Server
