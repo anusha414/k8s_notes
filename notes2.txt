@@ -116,6 +116,8 @@ step5:- change lodablancer service type to nodeport
 step6:- curl -H "Host: myapp.com" http://localhost:31653->Nodeport
 NOTE:- ingressClassName is mandatory because we are telling the cluster to use the nginx ingress controller for routing when there are multiple imgress controllers in the namespaces.
 
+NOTE:- There is one more controller called load blancer controller, the difference between nginx controller and load balancer controller is that, nginx create a service of type load balancer and when AWS sees this service it creates ELB/NLB, but in case of load lancer controller for every ingress resource it creates a ALB or else you can use existing one as well by using annotations
+
 NOTE:-
 1. if a Load balancer has a security group, then even the node on which the pod is running must have security groups to allow it
 2. ingress port is independent of service port, for eg:- 
