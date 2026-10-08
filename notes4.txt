@@ -133,3 +133,5 @@ KEDA(Kubernetes Event driven Autoscaling):-
 -> scaling workloads based on real demand- not just memory and cpu
 -> autoscaling pods based on events
 
+POD SECURITY:-
+
