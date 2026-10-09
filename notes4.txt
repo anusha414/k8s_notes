@@ -168,11 +168,33 @@ ls -l /data
 spec:
   securityContext:
     fsGroup: 2000
-Above changes the group ownership of the volume to 2000, And Kubernetes automatically makes the container process a member of that group.
+Above changes the group ownership of the volume to 2000, And Kubernetes automatically makes the container process a member of that group. You have to go inside the volume directory to create or delete files by using exec.
 
 container level:-
 1. allowPrivilegeEscalation: false
-This controls whether a process can gain more privileges than it started with.
-
+This controls whether a process can gain more privileges than it started with. even suid bit is set
 2. privileged: true
 Container gets almost unrestricted access to the host.
+3. readOnlyRootFilesystem
+Makes container filesystem read-only. Attacker cannot:
+apt install
+rm system files
+modify binaries
+
+LINUX Capabilities:-(Container level)
+They are few tasks that a normal user cannot perform like
+Linux capabilities divide root privileges into smaller permission sets. Instead of running a container as fully privileged root, Kubernetes can grant only the specific privileges required by an application. For example, NET_BIND_SERVICE allows a non-root container to listen on port 80, while NET_ADMIN allows network configuration changes. This follows the principle of least privilege and significantly reduces the attack surface compared to running privileged containers.
+securityContext:
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+
+  capabilities:
+    drop:
+      - ALL
+    add:
+      - NET_BIND_SERVICE
+
+NOTE:- how will we know what permission are given to linux user because when i create a user in my dockerfile im not specifying any permissioms or policies to it? how does it get it?
+Basically in linux we can see the option like "others" right it can perform all those things, that's where it gets the file permissions from
+Commands like mkdir, touch, rm, and cp are not special privileged operations. Whether they work depends on the permissions of the directory you're operating in.
+Capabilities are separate from file permissions they are like accessing ports chown
