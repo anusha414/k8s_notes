@@ -133,5 +133,46 @@ KEDA(Kubernetes Event driven Autoscaling):-
 -> scaling workloads based on real demand- not just memory and cpu
 -> autoscaling pods based on events
 
-POD SECURITY:-
+POD SECURITY:-(Video:- https://www.youtube.com/watch?v=ZoTKkmY6VSw&t=322s)
+k8s lets u run containers easily but it doesn't secure them by default. the containers run as root users by default.
+Every containerized application ultimately runs as one or more Linux processes on the worker node.
+How to check which user is running the container? exec into the container/pod and execute "id" command if it returns o then container is running as root.
+NOTE:- this doesn't adhere to the principle of least privileges
+Why is this a security concern?
+If an attacker compromises the application:
+They gain root privileges inside the container.
+Although container root is not automatically root on the host, misconfigurations or container escape vulnerabilities can make this dangerous.
+They may access mounted secrets, service account tokens, or writable volumes. If the host filesystem is mounted into the container and the process runs as root, the attacker may be able to read or alter files from the host.
 
+NOTE:- You can create the user in the dockerfile itself, then the container will run as that user by default instead of running as root user
+
+1. security Context:- (Po/container Level)
+Applicable at pod and container level
+Pod+Container level:- 
+-> settings can be defined at both pod level or container level, If both levels are defines then container level is given the higher priority.
+-> runAsUser:- Run all processes in this container as this Linux User ID (UID).
+-> runAsGroup:- You can tell Kubernetes to use a specific group
+-> runAsNonRoot:- Do not start this container if it would run as root.
+Most production environments use:
+securityContext:
+runAsNonRoot: true, Acts as a safety check.
+runAsUser: 1000, Specifies exactly which user to use.
+
+NOTE:- runAsUser does not create a new Linux user.
+If the UID exists in the container image's /etc/passwd, it will map to that username; otherwise the process still runs with that numeric UID
+
+Pod Level:-
+fsgroup:- U are running a container as non-root but you want to make some changes in the volumes but that volume is owned by root user in that acse our user cannot access those volumes "Permission denied"
+ls -l /data
+-rw------- 1 root root data.txt
+spec:
+  securityContext:
+    fsGroup: 2000
+Above changes the group ownership of the volume to 2000, And Kubernetes automatically makes the container process a member of that group.
+
+container level:-
+1. allowPrivilegeEscalation: false
+This controls whether a process can gain more privileges than it started with.
+
+2. privileged: true
+Container gets almost unrestricted access to the host.
