@@ -9,3 +9,11 @@ Just check if the networkpolicies allows te pods to communicate with eachother, 
 
 3. How would you design NetworkPolicies for a three-tier application: frontend → backend → database? 
 Use default-deny, then allow frontend→backend on required ports, backend→database on the DB port, and required DNS egress. Do not allow frontend directly to the database
+
+4. HPA shows that CPU utilization is low, but the application is still experiencing high traffic and latency. Why might HPA fail to scale? 
+The key thing to remember is:
+HPA only scales based on the metrics it is configured to watch.
+If HPA is configured only for CPU utilization, it does not care about traffic volume, requests per second, response time, or latency.
+So even when traffic is high, HPA may not scale if CPU usage remains low.
+
+5. Your HPA is continuously scaling pods up and down. How would you troubleshoot this behavior? 
