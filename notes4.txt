@@ -181,6 +181,9 @@ apt install
 rm system files
 modify binaries
 
+NOTE;- RunContainerError is a Kubernetes pod state that means:
+The container runtime was able to pull/create the container, but it failed while trying to start the container process. the volume was created by root but nonroot user is trying to write to volume without fsgroup
+
 LINUX Capabilities:-(Container level)
 They are few tasks that a normal user cannot perform like
 Linux capabilities divide root privileges into smaller permission sets. Instead of running a container as fully privileged root, Kubernetes can grant only the specific privileges required by an application. For example, NET_BIND_SERVICE allows a non-root container to listen on port 80, while NET_ADMIN allows network configuration changes. This follows the principle of least privilege and significantly reduces the attack surface compared to running privileged containers.
