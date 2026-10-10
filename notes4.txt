@@ -130,8 +130,11 @@ NOTE:- pod->pod communication done by CNI, pod->service done by kube-proxy
 NOTE:- The CNI plugin watches for NetworkPolicy resources and programs the underlying networking layer accordingly. Kubernetes requires a compatible CNI plugin to implement networking behavior.
 
 KEDA(Kubernetes Event driven Autoscaling):-
+-> HPA can scale only based on metrics and not based on events and it cannot scale down to zero.
+-> If queue is involved HPA would result in bad user experience but with KEDA it scaled the pods based on events like queue is a lot
 -> scaling workloads based on real demand- not just memory and cpu
 -> autoscaling pods based on events
+
 
 POD SECURITY:-(Video:- https://www.youtube.com/watch?v=ZoTKkmY6VSw&t=322s)
 k8s lets u run containers easily but it doesn't secure them by default. the containers run as root users by default.
