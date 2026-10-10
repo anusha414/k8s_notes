@@ -201,3 +201,45 @@ NOTE:- how will we know what permission are given to linux user because when i c
 Basically in linux we can see the option like "others" right it can perform all those things, that's where it gets the file permissions from
 Commands like mkdir, touch, rm, and cp are not special privileged operations. Whether they work depends on the permissions of the directory you're operating in.
 Capabilities are separate from file permissions they are like accessing ports chown
+
+POD PRIORITY, PRIORITY CLASS AND PREEMPTION:-(Video:- https://www.youtube.com/watch?v=IICe8Z0lTa4&t=5s)
+
+1. when pods are created they will first be in pending state, if the requested resources not available they will continue to be in pending state.
+2. scheduler waits for the resources to be available or it will kick out the pods which are a low priority.
+3. which pod to evict is called preemption and and which pod to schedule first is called priority. higher the number higher the priority.
+4. Priority class:- PriorityClass helps Kubernetes decide which pods should run first and which should be protected during resource shortages.
+
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority
+value: 10000
+globalDefault: false
+description: "Critical application pods"
+
+NOTE:- globalDefault: true, Then pods without priorityClassName automatically get priority defines in the priority class.
+Below are default priority classes:-
+system-node-critical
+system-cluster-critical, Used by:
+CoreDNS
+kube-proxy
+CNI plugins
+Other critical system workloads
+These should not normally be used by application teams.
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  priorityClassName: high-priority
+  containers:
+  - name: nginx
+    image: nginx
+
+PriorityClass is commonly used for:
+Ingress controllers (NGINX)
+CoreDNS
+Monitoring stack (Prometheus)
+Logging stack
+Critical business applications
