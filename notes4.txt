@@ -240,6 +240,8 @@ spec:
   - name: nginx
     image: nginx
 
+NOTE:- If no priorityclassname is defined, Kubernetes assigns it the default priority value of 0.
+
 PriorityClass is commonly used for:
 Ingress controllers (NGINX)
 CoreDNS
