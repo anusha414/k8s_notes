@@ -22,6 +22,11 @@ Authentication verifies who you are.
 Authorization verifies what you're allowed to do.
 Admission Controllers verify whether the object itself is acceptable.
 
+Types of controllers:-
+1. Mutating webhook:-
+2. Validating Admission Policies
+3. Validating webhook:- this validates the our requests
+
 Authentication
 ↓
 Show passport
