@@ -1323,6 +1323,8 @@ Evict the pods manually if it restricting u because of PDB:-
 kubectl get pods --field-selector spec.nodeName=<node-name>
 kubectl evict <pod-name> --force --grace-period=30
 
+During node drain, Kubernetes evicts pods one at a time using the Eviction API. Before each eviction, it checks the PodDisruptionBudget. If evicting a pod would reduce the number of available pods below the PDB threshold, the eviction is denied and the drain pauses. As replacement pods become Ready on other nodes, further evictions can proceed until the node is drained.
+
 TOPOLOGY SPREAD CONSTRAINT:-
 Topology Spread Constraints are a way to control how Pods are distributed across multiple AZ's or node across your cluster to improve availability, fault tolerance, and resource utilization.
 They are rules that ensure Pods are evenly spread across different topology domains such as:
