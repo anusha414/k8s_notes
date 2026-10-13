@@ -939,6 +939,28 @@ spec:
             values:
             - ssd
 
+POD AFFINITY:-
+Controls which pods should run together.
+The backend pod prefers/requires being scheduled on the same node as frontend pods.
+Use when applications need low latency communication.
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchLabels:
+          app: frontend
+      topologyKey: kubernetes.io/hostname
+
+POD ANTIAFFINTY:-
+Controls which pods should NOT run together.
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchLabels:
+          app: nginx
+      topologyKey: kubernetes.io/hostname
+
 Container Restarts:-
 
 👉 Containers are restarted only if they have been started at least once and then stop/fail
