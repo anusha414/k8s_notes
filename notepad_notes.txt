@@ -1363,6 +1363,9 @@ minDomains is an optional field in topologySpreadConstraints.
 It specifies the minimum number of topology domains (like zones or nodes) that must be used when scheduling Pods.
 It works together with whenUnsatisfiable: DoNotSchedule.
 If your cluster has only 2 AZ's and minDomain has value 3, then your pods will ignore the maxSkew.
+minDomains works together with maxSkew to control pod spreading. If fewer than the specified minDomains are available, Kubernetes treats the missing domains as having 0
+pods and continues scheduling only while the resulting skew stays within maxSkew. Once scheduling another pod would violate maxSkew, the pod remains Pending (when 
+DoNotSchedule is used).
 
 topologyKey:-
 
