@@ -935,7 +935,7 @@ spec:
         nodeSelectorTerms:
         - matchExpressions:
           - key: disktype
-            operator: In
+            operator: In   # NotIn for node antiaffinity
             values:
             - ssd
 
