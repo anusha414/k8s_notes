@@ -162,6 +162,8 @@ solution:- Try to find a different node and assign on that or add labels to the 
 3. Unbound Persistent Volume:- Pod did not find a pvc, When pod needs a persistent volume, it must be attached to the pod even before being schedules on a pod if not u will get the above error
 solution:- check if a PV exists for the PVC and the requested storage is actually available in the PV and requests admin to create
 4. Node taint and toleration:- Pod is trying to be schedules on a node that has taint and the pod doesn't have toleration.
+5. Topology Spread Constraint:- 5 node(s) didn't satisfy existing topology spread constraint
+6. Pod antiaffinity/ pod affinity:-
 
 CONTAINER CREATION ERROR:-
 1. configmap not found:- before the container gets created, it will check the configmap associated with the pod, if it is not found you will get this error and the pod will be stuck in container creating status
