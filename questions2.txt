@@ -17,3 +17,9 @@ If HPA is configured only for CPU utilization, it does not care about traffic vo
 So even when traffic is high, HPA may not scale if CPU usage remains low.
 
 5. Your HPA is continuously scaling pods up and down. How would you troubleshoot this behavior? 
+
+6. Pods are getting evicted from a node. What are the possible reasons, and how would you troubleshoot them? 
+Reasons:- 1)pressure on the node such as memory, disk, ephemeral storage, or PID exhaustion, 2)node drain operations, node failures, taint-based evictions, or when higher-
+priority pods preempt lower-priority ones
+solution:- I would start troubleshooting by checking the pod events using kubectl describe pod, reviewing node conditions with kubectl describe node, examining cluster
+events, and checking node resource utilization using kubectl top node to identify the root cause.
